@@ -89,7 +89,7 @@ public class ParticipantMusicPlayerActivity extends AppCompatActivity
             baseConnectionManager.cleanUp();
             System.exit(1);
         } else {
-            playlist = allPlaylists.get(1);
+            playlist = allPlaylists.get(0);
             customMusicAdapter =
                     new CustomMusicAdapter(ParticipantMusicPlayerActivity.this,
                             R.layout.song_in_gui, playlist);
