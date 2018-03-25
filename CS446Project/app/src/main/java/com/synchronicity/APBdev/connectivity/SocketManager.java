@@ -4,18 +4,19 @@ package com.synchronicity.APBdev.connectivity;
         import android.os.Parcelable;
 
         import java.net.ServerSocket;
+        import java.net.Socket;
 
 public interface SocketManager {
 
     interface ActionListener {
-        void onReceive();
+        void onReceive(Socket remoteSocket);
     }
 
+    void initServerSocket();
+    void connectToServer(final String hostName, final int hostPort);
     void sendData(Parcelable parcelable);
     void sendDataByPath(String pathToData);
-    void sendSignal(int signal);
-    void setOnReceiveDataListener(SocketManager.ActionListener actionListener);
-    ServerSocket getServerSocket();
+    void sendSignal(byte sigType);
     void cleanUp();
 
 

@@ -10,10 +10,6 @@ package com.synchronicity.APBdev.connectivity;
 
 public interface NsdInfo {
 
-    interface Converter<T> {
-        T convert();
-    }
-
-    NsdInfo.Converter getConverter();
+    <T> T getInfo();
 
 }

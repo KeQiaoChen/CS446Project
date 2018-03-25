@@ -26,7 +26,7 @@ behaviour still needs to be updated.
 ON THE ARCHITECTURE AND DESIGN OF THIS COMPONENT:
 
 This component acts as a facade to the other two sub-modules to which it delegates its work.
-The sub-module, NsdManager takes care of network discover and establishing initia wifi connections.
+The sub-module, NsdManager takes care of network discover and establishing initial wifi connections.
 The sub-module, SocketManager takes care of maintaining socket connections and sending / receiving
 of data.
 
@@ -54,10 +54,11 @@ public class WifiConnectionManager implements ConnectionManager {
     private Context context;
     private NsdManager nsdManager;
     private SocketManager socketManager;
+    private Map<String,String> recordMap;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
 
-    private final String classTag = "WifiConnectionManager";
+    private final String classTag = "WifiConnectionManager> ";
 
 
     /*
@@ -70,6 +71,10 @@ public class WifiConnectionManager implements ConnectionManager {
         this.context = context;
         this.nsdManager = new WifiNsdManager(context);
         this.socketManager = new WifiSocketManager(context);
+        this.recordMap = new HashMap<>();
+
+        // Fill recordMap info here.
+        recordMap.put("foo","bar");
 
         // BroadcastReceive creation and registration.
         this.broadcastReceiver = new BroadcastReceiver() {
@@ -94,69 +99,15 @@ public class WifiConnectionManager implements ConnectionManager {
 
 
     public void createSession(String sessionName) {
-
-        NsdInfo nsdInfo = new NsdInfo() {
-            NsdInfo.Converter<Map<String,String>> converter = new NsdInfo.Converter<Map<String,String>>() {
-                @Override
-                public Map<String,String> convert() {
-                    Map<String,String> record = new HashMap<>();
-                    // Put stuff in the map that we will need here.
-                    record.put();
-
-                    return record;
-                }
-            };
-            @Override
-            public Converter getConverter() {
-                return this.converter;
-            }
-        };
-
-        this.nsdManager.advertiseService(nsdInfo);
+        this.nsdManager.advertiseService(recordMap);
     }
 
     public void joinSession(String sessionName) {
-
-        NsdInfo nsdInfo = new NsdInfo() {
-            NsdInfo.Converter<Map<String,String>> converter = new NsdInfo.Converter<Map<String,String>>() {
-                @Override
-                public Map<String,String> convert() {
-                    Map<String,String> record = new HashMap<>();
-                    // Put stuff in the map that we will need here.
-                    record.put();
-
-                    return record;
-                }
-            };
-            @Override
-            public Converter getConverter() {
-                return this.converter;
-            }
-        };
-
-        this.nsdManager.connectToService(nsdInfo);
+        this.nsdManager.connectToService(recordMap);
     }
 
     public void findSessions() {
-
-        NsdInfo nsdInfo = new NsdInfo() {
-            NsdInfo.Converter<Map<String,String>> converter = new NsdInfo.Converter<Map<String,String>>() {
-                @Override
-                public Map<String,String> convert() {
-                    Map<String,String> record = new HashMap<>();
-                    // Put stuff in the map that we will need here.
-                    record.put();
-
-                    return record;
-                }
-            };
-            @Override
-            public Converter getConverter() {
-                return this.converter;
-            }
-        };
-
-        this.nsdManager.findService(nsdInfo);
+        this.nsdManager.findService(recordMap);
     }
 
     public void sendData(Parcelable parcelable) {
@@ -167,7 +118,7 @@ public class WifiConnectionManager implements ConnectionManager {
         this.socketManager.sendDataByPath(pathToData);
     }
 
-    public void sendSignal(int signal) {
+    public void sendSignal(byte signal) {
         this.socketManager.sendSignal(signal);
     }
 

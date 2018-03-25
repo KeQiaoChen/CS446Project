@@ -12,33 +12,14 @@ package com.synchronicity.APBdev.connectivity;
     types that they will be using in the implementation of NsdManager.
  */
 
-public interface NsdManager {
+public interface NsdManager<T> {
 
-        /*
-            The client should use this method to advertise all of the information that they wish that
-            other to know so that they may use the service. The information about the service is
-            contained in the wrapper class NsdInfo.
-         */
-        void advertiseService(NsdInfo info);
+        void advertiseService(T nsdInfo);
 
-        /*
-            The client should use this method to find service that are available to be connected to
-            and use the NsdInfo provided to filter only the services that they would like to
-            connect to, discarding the rest.
-         */
-        void findService(NsdInfo info);
+        void findService(T nsdInfo);
 
-        /*
-            The client should use this method to connect to one of the services which has found.
-            They provid an NsdInfo object to help identify which of the found services that
-            they would like to connect to.
-         */
-        void connectToService(NsdInfo info);
+        void connectToService(T nsdInfo);
 
-        /*
-            The client should use this method if there are any resources that need to be cleaned up
-            in the class that implements the interface.
-         */
         void cleanUp();
 
 }

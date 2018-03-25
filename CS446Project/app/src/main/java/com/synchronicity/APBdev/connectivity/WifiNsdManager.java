@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /*
 The WifiNsdManager class implements the NsdManager interface using androids WifiP2p APIs. This class
@@ -27,7 +28,7 @@ The class is designed to act as a sub-module to other another class hierarchy fr
 delegated.
  */
 
-public class WifiNsdManager implements NsdManager {
+public class WifiNsdManager implements NsdManager<Map<String,String>> {
 
 
     /*
@@ -82,7 +83,7 @@ public class WifiNsdManager implements NsdManager {
         this.wifiP2pChannel = this.wifiP2pManager.initialize(context, context.getMainLooper(), null);
         this.wifiP2pServiceInfo = null;
         this.wifiP2pServiceRequest = null;
-        this.sessionMap = new HashMap<String,HashSet<WifiP2pDevice>>();
+        this.sessionMap = new HashMap<>();
         this.nsdState = new PreSessionState();
         this.currentSession = "";
 
@@ -108,12 +109,8 @@ public class WifiNsdManager implements NsdManager {
      */
 
 
-    /*
-    Takes an NsdInfo object, and then based on the information within the object, starts
-    advertising a service that can be discovered by other users.
-     */
     @Override
-    public void advertiseService(NsdInfo info) {
+    public void advertiseService(Map<String,String> nsdInfo) {
 
         final String funcTag = "Advertise> ";
 
@@ -125,17 +122,14 @@ public class WifiNsdManager implements NsdManager {
         if (this.wifiP2pServiceInfo != null) {
             throw new RuntimeException(classTag+funcTag+"wifiP2pServiceInfo already has a value.");
         }
-
-        NsdInfo.Converter<Map<String,String>> converter = info.getConverter();
-        Map<String,String> record = converter.convert();
         
-        String serviceName = record.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
-        String serviceProtocol = record.get(WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_ID);
+        String serviceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
+        String serviceProtocol = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_ID);
 
         this.wifiP2pServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
                 serviceName,
                 serviceProtocol,
-                record
+                nsdInfo
         );
 
         this.wifiP2pManager.addLocalService(
@@ -156,14 +150,8 @@ public class WifiNsdManager implements NsdManager {
 
     }
 
-    /*
-    Takes an NsdInfo object, and then based on the information within the object, starts
-    searching for services which match the service described within the NsdInfo object.
-    Note that this NsdInfo object need not be fully realized, and only requires enough info
-    to be able to discern which discovered services our app cares about.
-     */
     @Override
-    public void findService(NsdInfo info) {
+    public void findService(Map<String,String> nsdInfo) {
 
         final String funcTag = "Find> ";
 
@@ -176,10 +164,7 @@ public class WifiNsdManager implements NsdManager {
             throw new RuntimeException(classTag+funcTag+"wifiP2pServiceRequest already has a value.");
         }
 
-        NsdInfo.Converter<Map<String,String>> converter = info.getConverter();
-        Map<String,String> record = converter.convert();
-
-        final String serviceName = record.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
+        final String serviceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
 
         this.wifiP2pManager.setDnsSdResponseListeners(
                 this.wifiP2pChannel,
@@ -210,27 +195,16 @@ public class WifiNsdManager implements NsdManager {
 
     }
 
-    /*
-    Takes an NsdInfo object, and then based on the information within the object, connects
-    to all the devices in a particular instance of a Synchronicity service. Note that this
-    NsdInfo object need not be fully realized, and only requires the information which
-    identifies the particular service instance which the user would like to connect to.
-     */
     @Override
-    public void connectToService(NsdInfo info) {
+    public void connectToService(Map<String,String> nsdInfo) {
 
-        NsdInfo.Converter<Map<String,String>> converter = info.getConverter();
-        Map<String,String> record = converter.convert();
-
-        String instanceName = record.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
+        String instanceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
         this.currentSession = instanceName;
 
         /*
         Connect to all of the devices which we have tracked for the particular service instance.
          */
-        Iterator<WifiP2pDevice> it = this.sessionMap.get(instanceName).iterator();
-        while (it.hasNext()) {
-            WifiP2pDevice remoteDevice = it.next();
+        for (WifiP2pDevice remoteDevice : this.sessionMap.get(instanceName)) {
             this.establishConnection(remoteDevice);
         }
 
@@ -238,14 +212,6 @@ public class WifiNsdManager implements NsdManager {
 
     }
 
-    /*
-    A straightforward clean up method. This method cancels any pending WifiP2P connections and also
-    halts advertising and search for services, as well as removes any WifiP2P groups that they
-    the device was associated with. Note that the discontinuation of advertising and searching for
-    services is contingent on the fact that these behaviours had been initiated. If they had not,
-    then the method skips dealing with them. The BroadcastReceive associated with this class is also
-    unregistered.
-     */
     @Override
     public void cleanUp() {
 

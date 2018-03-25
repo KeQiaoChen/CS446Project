@@ -1,0 +1,14 @@
+package com.synchronicity.APBdev.util;
+
+import java.util.Random;
+
+public class StampUtil {
+
+    private static final Random random = new Random();
+
+    public static Long getNewStamp() {
+
+        return (System.currentTimeMillis() << 32) + random.nextInt();
+
+    }
+}

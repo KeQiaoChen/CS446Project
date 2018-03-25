@@ -1,4 +1,4 @@
-package com.synchronicity.APBdev.connectivity;
+package com.synchronicity.APBdev.util;
 
 /*
  This is a utility class for marshalling and unmarshalling of Parcelable type objects. I am not the
