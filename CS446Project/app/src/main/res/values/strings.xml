@@ -1,9 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-    <!--The domain name, followed by a dot, must be appended at the beginning of the action name for
-    any custom Intent that the app broadcasts.-->
-    <!ENTITY domain_name "com.example.qian.cs446project.">
-]>
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!--The domain name, followed by a dot, must be appended at the beginning of the action name for
+    any custom Intent that the app broadcasts.--><!ENTITY domain_name "com.example.qian.cs446project.">]>
 
 <resources>
     <string name="app_name">CS 446 Project</string>
@@ -32,11 +28,11 @@
     <!--String for the broadcasted Intent HostMusicPlayerActivity receives to indicate that all
     participants have finished downloading at least the 1st song in the session playlist-->
     <string name="all_participants_ready">&domain_name;all_participants_ready</string>
-    <!--String for the Intent HostMusicPlayerActivity broadcasts to tell other components that the
-    session playlist is currently stopped (i.e. the session playlist is not playing nor paused)-->
+    <!--String for the broadcast Intent that indicates that the session playlist has transitioned
+    from a playing state or paused state to a stopped state-->
     <string name="playlist_stopped">&domain_name;playlist_stopped</string>
-    <!--String for the Intent HostMusicPlayerActivity broadcasts to tell other components that the
-    session playlist is currently not stopped (i.e. the session playlist is playing or paused)-->
+    <!--String for the broadcast Intent that indicates that the session playlist has transitioned
+    from a stopped state to a playing state-->
     <string name="playlist_not_stopped">&domain_name;playlist_not_stopped</string>
     <!--String for the Intent HostMusicPlayerActivity broadcasts to tell other components that the
     host has pressed Play on the session playlist-->
@@ -47,16 +43,16 @@
     <!--String for the Intent HostMusicPlayerActivity broadcasts to tell other components that the
     host has stopped the session playlist-->
     <string name="send_stop">&domain_name;send_stop</string>
-    <!--String for the broadcasted Intent ParticipantMusicPlayerActivity receives to indicate that
-    it should play the session playlist-->
+    <!--String for the broadcasted Intent to indicate to the receiving component that it should play
+    the session playlist-->
     <string name="receive_play">&domain_name;receive_play</string>
-    <!--String for the broadcasted Intent ParticipantMusicPlayerActivity receives to indicate that
-    it should pause the session playlist-->
+    <!--String for the broadcasted Intent to indicate to the receiving component that it should
+    pause the session playlist-->
     <string name="receive_pause">&domain_name;receive_pause</string>
-    <!--String for the broadcasted Intent ParticipantMusicPlayerActivity receives to indicate that
-    it should stop the session playlist-->
+    <!--String for the broadcasted Intent to indicate to the receiving component that it should stop
+    the session playlist-->
     <string name="receive_stop">&domain_name;receive_stop</string>
-    <!--String for the broadcasted Intent ParticipantMusicPlayerActivity receives to indicate that
+    <!--String for the broadcasted Intent ParticipantMusicPlayer receives to indicate that
     the 1st song in the session playlist has finished downloading onto the participant's device-->
     <string name="song_finished_downloading">&domain_name;song_finished_downloading</string>
     <!--Name of the Intent ParticipantMusicPlayerActivity broadcasts to tell other components
@@ -86,7 +82,7 @@
     <!--The GUI that lists all sessions a user can join (screen 2 of mockup) shows this string
     before ChooseSessionActivity receives the list of session names.-->
     <string name="waiting_for_session_names">Retrieving sessions...</string>
-    <!--Name of the Intent HostMusicPlayerActivity broadcasts to tell other components that a user
+    <!--Name of the Intent HostMusicPlayer broadcasts to tell other components that a user
     has finished creating a session-->
     <string name="session_created">&domain_name;session_created</string>
     <!--Name of the Intent ChooseSessionActivity broadcasts to tell other components that a user is
@@ -96,10 +92,10 @@
     ParticipantMusicPlayerActivity. This extra is a String that is the name of the session the
     user has chosen to join.-->
     <string name="session_name">session_name</string>
-    <!--Name of the broadcasted Intent HostMusicPlayerActivity receives that indicates the
+    <!--Name of the broadcasted Intent HostMusicPlayer receives that indicates the
     connection manager is requesting the session playlist.-->
     <string name="request_session_playlist">&domain_name;request_session_playlist</string>
-    <!--Name of the Intent HostMusicPlayerActivity broadcasts that contains the session playlist-->
+    <!--Name of the Intent HostMusicPlayer broadcasts that contains the session playlist-->
     <string name="return_session_playlist">&domain_name;return_session_playlist</string>
     <!--Name of the Intent ChooseSessionActivity broadcasts to tell other components that it is
     requesting a list of available sessions the user can join-->
@@ -115,4 +111,97 @@
     ParticipantMusicPlayerActivity. This extra is a String that is the name of the session the
     user created.-->
     <string name="created_session_name">created_session_name</string>
+    <!--Name of the Intent HostMusicPlayer broadcasts to indicate that a song in the session
+    playlist has finished-->
+    <string name="song_completed">&domain_name;song_completed</string>
+    <!--Name of the extra that the song_completed Intent contains that is the index of the song that
+    should play next in the session playlist, with the index of the first song being 0-->
+    <string name="current_song_index">current_song_index</string>
+    <!--Name of the Intent HostMusicPlayerActivity broadcasts to indicate that it has been started
+     -->
+    <string name="host_music_player_activity_started">&domain_name;host_music_player_activity_started</string>
+    <!--Name of the Intent ParticipantMusicPlayerActivity broadcasts to indicate that it has been
+    started and has the session playlist-->
+    <string name="participant_music_player_activity_started">&domain_name;participant_music_player_activity_started</string>
+    <!--Name of the Intent SynchronicityMusicPlayerActivity broadcasts to indicate that the playlist
+    is to be played. If the user is the host, this Intent is broadcast when the user presses the
+    play button. If the user is a participant, this Intent is broadcast when the user's phone
+    receives a play signal.-->
+    <string name="play">&domain_name;play</string>
+    <!--Name of the Intent HostMusicPlayer broadcasts to indicate that the host's GUI must update to
+    reflect the fact that the playlist is playing-->
+    <string name="playing_update_GUI">&domain_name;playing_update_GUI</string>
+    <!--Name of the Intent SynchronicityMusicPlayerActivity broadcasts to indicate that the playlist
+    is to be paused. If the user is the host, this Intent is broadcast when the user presses the
+    pause button. If the user is a participant, this Intent is broadcast when the user's phone
+    receives a pause signal.-->
+    <string name="pause">&domain_name;pause</string>
+    <!--Name of the Intent HostMusicPlayer broadcasts to indicate that the host's GUI must update to
+    reflect the fact that the playlist is paused-->
+    <string name="paused_update_GUI">&domain_name;paused_update_GUI</string>
+    <!--Name of the Intent SynchronicityMusicPlayerActivity broadcasts to indicate that the playlist
+    is to be stopped. If the user is the host, this Intent is broadcast when the user presses the
+    stop button. If the user is a participant, this Intent is broadcast when the user's phone
+    receives a stop signal.-->
+    <string name="stop">&domain_name;stop</string>
+    <!--Name of the Intent HostMusicPlayer broadcasts to indicate that the host's GUI must update to
+    reflect the fact that the playlist is stopped-->
+    <string name="stopped_update_GUI">&domain_name;stopped_update_GUI</string>
+    <!--Name of the Intent SynchronicityMusicPlayerActivity broadcasts to indicate that the playlist
+    is to be muted on the user's phone.-->
+    <string name="mute">&domain_name;mute</string>
+    <!--Name of the Intent SynchronicityMusicPlayer broadcasts to indicate that the GUI must update
+    to reflect the fact that the user has muted the playlist-->
+    <string name="muted_update_GUI">&domain_name;muted_update_GUI</string>
+    <!--Name of the Intent SynchronicityMusicPlayerActivity broadcasts to indicate that the playlist
+    is to be unmuted on the user's phone.-->
+    <string name="unmute">&domain_name;unmute</string>
+    <!--Name of the Intent SynchronicityMusicPlayer broadcasts to indicate that the GUI must update
+    to reflect the fact that the user has unmuted the playlist-->
+    <string name="unmuted_update_GUI">&domain_name;unmuted_update_GUI</string>
+    <!--Name of the Intent SynchronicityMusicPlayer broadcasts to indicate that the progress bar,
+    elapsed time, and remaining time shown in the GUI for the currently playing song must be
+    updated-->
+    <string name="update_song_progress">&domain_name;update_song_progress</string>
+    <!--Name of the extra that the update_song_progress Intent contains that is the index of the
+    currently playing song in the session playlist, with the index of the first song being 0-->
+    <string name="currently_playing_song_index">currently_playing_song_index</string>
+    <!--Name of the extra that the update_song_progress Intent contains that is the position of the
+    currently playing song in the session playlist (i.e. the amount of time, in milliseconds, that
+    the song has played for-->
+    <string name="current_position">current_position</string>
+    <!--Name of the Intent received by PlaylistManager as a request to publish all device songs-->
+    <string name="list_all_device_songs">&domain_name;list_all_device_songs</string>
+    <!--Name of the Intent published by PlaylistManager with all device songs-->
+    <string name="all_device_songs">&domain_name;all_device_songs</string>
+    <!--Name of the Intent received by PlaylistManager as a request to publish app playlists-->
+    <string name="list_all_app_playlists">&domain_name;list_all_app_playlists</string>
+    <!--Name of the Intent published by PlaylistManager with all app playlists-->
+    <string name="all_app_playlists">&domain_name;all_app_playlists</string>
+    <!--Name of the Intent received by PlaylistManager as a request to publish playlist songs-->
+    <string name="list_all_playlist_songs">&domain_name;list_all_playlist_songs</string>
+    <!--Name of the Intent published by PlaylistManager with all playlist songs-->
+    <string name="all_playlist_songs">&domain_name;all_playlist_songs</string>
+    <!--Name of the Intent received by PlaylistManager as a request to create a new playlist-->
+    <string name="create_new_playlist">&domain_name;create_new_playlist</string>
+    <!--Name of the Intent published by PlaylistManager which indicates successful playlist creation-->
+    <string name="new_playlist_created">&domain_name;new_playlist_created</string>
+    <!--Name of the Intent received by PlaylistManager as a request to add a song to a playlist-->
+    <string name="add_song_to_playlist">&domain_name;add_song_to_playlist</string>
+    <!--Name of the Intent published by PlaylistManager which indicates successful addition of song to playlist-->
+    <string name="song_added_to_playlist">&domain_name;song_added_to_playlist</string>
+    <!--Name of the extra for a playlist sent in the Intent received by PlaylistManager-->
+    <string name="extra_name_playlist">playlist</string>
+    <!--Name of the extra for playlists sent in the Intent published by PlaylistManager-->
+    <string name="extra_name_arraylist_playlist">arraylist_playlist</string>
+    <!--Name of the extra for a song sent in the Intent received by PlaylistManager-->
+    <string name="extra_name_song">song</string>
+    <!--Name of the extra for songs sent in the Intent published by PlaylistManager-->
+    <string name="extra_name_arraylist_song">arraylist_song</string>
+    <!--Name of the extra for songs sent in the Intent published by PlaylistManager-->
+    <string name="extra_name_linkedlist_song">linkedlist_song</string>
+    <!--Name of the extra for a playlist name sent in the Intent received by PlaylistManager-->
+    <string name="extra_name_playlist_name">playlistName</string>
+    <!--Name of the extra for a boolean value sent in the Intent published by PlaylistManager-->
+    <string name="extra_name_success">success</string>
 </resources>

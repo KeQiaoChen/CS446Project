@@ -1,11 +1,15 @@
 package com.example.qian.cs446project;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,6 +20,47 @@ import java.util.LinkedList;
  */
 
 public class PlaylistManager {
+    private Context mycon;
+    private IntentFilter intentFilter;
+    private BroadcastReceiver broadcastReceiver;
+
+
+    public PlaylistManager(Context mycon) {
+        this.mycon = mycon;
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(mycon.getString(R.string.list_all_device_songs));
+        intentFilter.addAction(mycon.getString(R.string.list_all_app_playlists));
+        intentFilter.addAction(mycon.getString(R.string.list_all_playlist_songs));
+        intentFilter.addAction(mycon.getString(R.string.create_new_playlist));
+        intentFilter.addAction(mycon.getString(R.string.add_song_to_playlist));
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String intentAction = intent.getAction();
+
+                if (intentAction.equals(PlaylistManager.this.mycon.getString(R.string.list_all_device_songs))) {
+                    listAllDeviceSongs(PlaylistManager.this.mycon);
+                } else if (intentAction.equals(PlaylistManager.this.mycon.getString(R.string.list_all_app_playlists))) {
+                    listAllAppPlaylists(PlaylistManager.this.mycon);
+                } else if (intentAction.equals(PlaylistManager.this.mycon.getString(R.string.list_all_playlist_songs))) {
+                    Playlist pl = intent.getParcelableExtra(PlaylistManager.this.mycon.getString(R.string.extra_name_playlist));
+                    listAllPlaylistSongs(PlaylistManager.this.mycon, pl);
+                } else if (intentAction.equals(PlaylistManager.this.mycon.getString(R.string.create_new_playlist))) {
+                    String playlistName = intent.getParcelableExtra(PlaylistManager.this.mycon.getString(R.string.extra_name_playlist_name));
+                    createPlaylist(PlaylistManager.this.mycon, playlistName);
+                } else if (intentAction.equals(PlaylistManager.this.mycon.getString(R.string.add_song_to_playlist))) {
+                    Playlist pl = intent.getParcelableExtra(PlaylistManager.this.mycon.getString(R.string.extra_name_playlist));
+                    Song s = intent.getParcelableExtra(PlaylistManager.this.mycon.getString(R.string.extra_name_song));
+                    addSongToPlaylist(PlaylistManager.this.mycon, pl, s);
+                }
+            }
+        };
+
+        LocalBroadcastManager.getInstance(mycon).registerReceiver(broadcastReceiver, intentFilter);
+    }
+
     // listAllDeviceSongs searches the device for all audio files and generates an ArrayList<com.example.qian.cs446project.Song> object for all
     // the songs to return.
     public static ArrayList<Song> listAllDeviceSongs(Context ctx) {
@@ -55,6 +100,9 @@ public class PlaylistManager {
 
         // Return appropriate value.
         Log.d("Playlist Manager", "END LIST ALL SONGS");
+        Intent allDeviceSongsIntent = new Intent(ctx.getString(R.string.all_device_songs));
+        allDeviceSongsIntent.putExtra(ctx.getString(R.string.extra_name_arraylist_song), allDeviceSongs);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(allDeviceSongsIntent);
         return allDeviceSongs;
     }
 
@@ -90,6 +138,9 @@ public class PlaylistManager {
 
         // Return appropriate value.
         Log.d("Playlist Manager", "END LIST ALL PLAYLISTS");
+        Intent allAppPlaylistsIntent = new Intent(ctx.getString(R.string.all_app_playlists));
+        allAppPlaylistsIntent.putExtra(ctx.getString(R.string.extra_name_arraylist_playlist), allAppPlaylists);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(allAppPlaylistsIntent);
         return allAppPlaylists;
     }
 
@@ -136,6 +187,9 @@ public class PlaylistManager {
 
         // Return appropriate value.
         Log.d("Playlist Manager", "END LIST ALL PLAYLIST SONGS");
+        Intent allPlaylistSongsIntent = new Intent(ctx.getString(R.string.all_playlist_songs));
+        allPlaylistSongsIntent.putExtra(ctx.getString(R.string.extra_name_linkedlist_song), pl.songs);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(allPlaylistSongsIntent);
         return pl.songs;
     }
 
@@ -143,6 +197,8 @@ public class PlaylistManager {
     // representing the newly created playlist.
     public static Playlist createPlaylist(Context ctx, String playlistName) {
         Log.d("Playlist Manager", "START CREATE PLAYLIST");
+
+        Intent newPlaylistCreatedIntent = new Intent(ctx.getString(R.string.new_playlist_created));
 
         // Initialize playlist values.
         ContentValues contentValuesPlaylist = new ContentValues();
@@ -153,15 +209,21 @@ public class PlaylistManager {
         Uri playlistURI = ctx.getContentResolver().insert(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, contentValuesPlaylist);
         if (playlistURI == null) {
             Log.e("Playlist Manager", "An error occurred creating playlist " + playlistName);
+            newPlaylistCreatedIntent.putExtra(ctx.getString(R.string.extra_name_playlist), (Playlist) null);
+            LocalBroadcastManager.getInstance(ctx).sendBroadcast(newPlaylistCreatedIntent);
             return null;
         }
         Cursor playlistIDCursor = ctx.getContentResolver().query(playlistURI, new String[]{MediaStore.Audio.Playlists._ID}, null, null, null);
         if (playlistIDCursor == null) {
             Log.e("Playlist Manager", "An error occurred creating playlist " + playlistName);
+            newPlaylistCreatedIntent.putExtra(ctx.getString(R.string.extra_name_playlist), (Playlist) null);
+            LocalBroadcastManager.getInstance(ctx).sendBroadcast(newPlaylistCreatedIntent);
             return null;
         }
         if (playlistIDCursor.getCount() != 1) {
             Log.e("Playlist Manager", "An error occurred creating playlist " + playlistName);
+            newPlaylistCreatedIntent.putExtra(ctx.getString(R.string.extra_name_playlist), (Playlist) null);
+            LocalBroadcastManager.getInstance(ctx).sendBroadcast(newPlaylistCreatedIntent);
             return null;
         }
         playlistIDCursor.moveToFirst();
@@ -170,7 +232,10 @@ public class PlaylistManager {
 
         // Return appropriate value.
         Log.d("Playlist Manager", "END CREATE PLAYLIST");
-        return new Playlist(playlistName, id);
+        Playlist newlyCreatedPlaylist = new Playlist(playlistName, id);
+        newPlaylistCreatedIntent.putExtra(ctx.getString(R.string.extra_name_playlist), newlyCreatedPlaylist);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(newPlaylistCreatedIntent);
+        return newlyCreatedPlaylist;
     }
 
     // deletePlaylist deletes the given playlist from the device and nullifies the given com.example.qian.cs446project.Playlist object. The
@@ -209,6 +274,8 @@ public class PlaylistManager {
     public static Boolean addSongToPlaylist(Context ctx, Playlist pl, Song s) {
         Log.d("Playlist Manager", "START ADD SONG");
 
+        Intent songAddedToPlaylistIntent = new Intent(ctx.getString(R.string.song_added_to_playlist));
+
         // Retrieve number of songs in playlist. Required to ensure new songs are added to end of playlist.
         final int previousPlaylistSongCount = getPlaylistSongCount(ctx, pl.getPlaylistID());
 
@@ -225,13 +292,21 @@ public class PlaylistManager {
         // Error if new song count is not 1 greater than old song count.
         if (previousPlaylistSongCount != currentPlaylistSongCount - 1) {
             Log.e("Playlist Manager", "com.example.qian.cs446project.Song " + s.getTitle() + " with ID " + s.getLocalDeviceFileID() + "could not be added to playlist " + pl.getPlaylistName() + " with ID " + pl.getPlaylistID());
+            songAddedToPlaylistIntent.putExtra(ctx.getString(R.string.extra_name_success), false);
+            LocalBroadcastManager.getInstance(ctx).sendBroadcast(songAddedToPlaylistIntent);
+            return false;
         }
 
         // Return appropriate value.
         Log.d("Playlist Manager", "END ADD SONG");
         if (!pl.songs.add(s)) {
             Log.e("Playlist Manager", "Failed to add song " + s.getTitle() + " with ID " + s.getLocalDeviceFileID() + " to playlist object " + pl.getPlaylistName() + " with ID " + pl.getPlaylistID());
+            songAddedToPlaylistIntent.putExtra(ctx.getString(R.string.extra_name_success), false);
+            LocalBroadcastManager.getInstance(ctx).sendBroadcast(songAddedToPlaylistIntent);
+            return false;
         }
+        songAddedToPlaylistIntent.putExtra(ctx.getString(R.string.extra_name_success), true);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(songAddedToPlaylistIntent);
         return true;
     }
 

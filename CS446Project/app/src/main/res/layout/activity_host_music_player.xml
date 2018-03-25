@@ -23,7 +23,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@android:color/black"
-            android:onClick="onTogglePlay" />
+            android:onClick="playUpdateGUINotifyService" />
 
         <ImageView
             android:id="@+id/imageViewStopButton"
@@ -34,7 +34,7 @@
             android:src="@drawable/stop"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:onClick="onStop" />
+            android:onClick="stopUpdateGUINotifyService" />
 
         <ImageView
             android:id="@+id/imageViewMuteTogglingButton"
@@ -46,7 +46,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@android:color/black"
-            android:onClick="onToggleMute" />
+            android:onClick="muteUpdateGUINotifyService" />
 
         <Button
             android:id="@+id/buttonEndSession"

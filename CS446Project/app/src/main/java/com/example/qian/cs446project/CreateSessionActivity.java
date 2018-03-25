@@ -1,6 +1,8 @@
 package com.example.qian.cs446project;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class CreateSessionActivity extends AppCompatActivity {
+    private IntentFilter intentFilterCreateSession;
+    private BroadcastReceiver broadcastReceiverCreateSession;
     private ArrayList<Playlist> allAppPlaylists;
 
     @Override

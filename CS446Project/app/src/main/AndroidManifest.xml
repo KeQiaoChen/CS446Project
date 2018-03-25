@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.qian.cs446project">
-
-    <!-- Min SDK Section -->
+    package="com.example.qian.cs446project"> <!-- Min SDK Section -->
     <uses-sdk android:minSdkVersion="14" />
 
     <!-- Permissions Section -->
     <uses-permission
         android:name="android.permission.CHANGE_NETWORK_STATE"
-        android:required="true"/>
+        android:required="true" />
     <uses-permission
         android:name="android.permission.ACCESS_NETWORK_STATE"
-        android:required="true"/>
+        android:required="true" />
     <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:required="true" />
     <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_WIFI_STATE"/>
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="true" />
     <uses-permission
-        android:required="true"
-        android:name="android.permission.CHANGE_WIFI_STATE"/>
+        android:name="android.permission.CHANGE_WIFI_STATE"
+        android:required="true" />
     <uses-permission
-        android:required="true"
-        android:name="android.permission.INTERNET"/>
+        android:name="android.permission.INTERNET"
+        android:required="true" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -40,15 +38,22 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HostMusicPlayerActivity"></activity>
-        <activity android:name=".ParticipantMusicPlayerActivity"></activity>
-        <activity android:name=".ChooseSessionActivity"></activity>
+        <activity android:name=".HostMusicPlayerActivity" />
+        <activity android:name=".ParticipantMusicPlayerActivity" />
+        <activity android:name=".ChooseSessionActivity" />
         <activity android:name=".CreateSessionActivity" />
         <activity android:name=".ManagePlaylistActivity" />
-        <activity android:name=".CreatePlaylistActivity"></activity>
+        <activity android:name=".CreatePlaylistActivity" />
+        <activity android:name=".SynchronicityMusicPlayerActivity" />
+
+        <service
+            android:name=".MainService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
