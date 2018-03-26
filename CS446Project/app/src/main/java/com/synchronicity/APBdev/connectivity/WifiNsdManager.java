@@ -4,10 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
 import android.net.wifi.p2p.nsd.WifiP2pServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,6 +18,7 @@ import android.util.Log;
 
 import com.example.qian.cs446project.R;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,6 +46,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private WifiP2pManager.Channel wifiP2pChannel;
     private WifiP2pServiceInfo wifiP2pServiceInfo;
     private WifiP2pServiceRequest wifiP2pServiceRequest;
+    private SocketManager socketManager;
     private Map<String,Set<WifiP2pDevice>> sessionMap;
     private NsdState nsdState;
     private String currentSession;
@@ -49,6 +54,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
+    private int port = 0;
     /*
     Constant used for logging. classTag, combined with funcTag (found in functions) defines the
     tagging convention used for logging.
@@ -66,7 +72,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     public static final String NSD_INFO_SERVICE_PORT_ID = "sPort";
     public static final String NSD_INFO_SERVICE_ADDRESS_ID = "sAddress";
     public static final String NSD_INFO_SERVICE_TIME_ID = "sTime";
-    public static final String NSD_INFO_SERVICE_NAME_VALUE ="Synchronicity";
+    public static final String NSD_INFO_SERVICE_NAME_VALUE ="Synchro";
     public static final String NSD_INFO_SERVICE_PROTOCOL_VALUE ="_presence._tcp";
     /*
     Constants related to a specific instance of network service discovery using WifiP2p. These are
@@ -74,7 +80,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     (key,value) pairs which identify the instance of a shared service, as well as the user a unique
     identifier for the user advertising this service. Unlike
      */
-    public static final String NSD_INFO_INSTANCE_NAME_ID = "sName";
+    public static final String NSD_INFO_INSTANCE_NAME_ID = "sInstName";
     public static final String NSD_INFO_INSTANCE_USERTAG_ID = "sUser";
 
     /*
@@ -82,7 +88,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
      */
 
 
-    WifiNsdManager(Context context) {
+    WifiNsdManager(Context context, SocketManager socketManager) {
 
         this.context = context;
         this.wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
@@ -93,6 +99,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         this.nsdState = new PreSessionState();
         this.currentSession = "";
         this.serviceInfoMap = null;
+        this.socketManager = socketManager;
 
         this.localBroadcastManager = LocalBroadcastManager.getInstance(this.context);
         // BroadcastReceive creation and registration.
@@ -100,10 +107,41 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             @Override
             public void onReceive(Context context, Intent intent) {
 
+                String action = intent.getAction();
+
+                if (action.equals(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)) {
+
+                    NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+
+                    if (networkInfo.isConnected()) {
+
+                        WifiNsdManager.this.wifiP2pManager.requestConnectionInfo(
+                                WifiNsdManager.this.wifiP2pChannel,
+                                new WifiP2pManager.ConnectionInfoListener() {
+                                    @Override
+                                    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+                                        InetAddress groupOwnerAddress = info.groupOwnerAddress;
+
+                                        if (info.groupFormed && !info.isGroupOwner) {
+                                            WifiNsdManager.this.socketManager.connectToServer(groupOwnerAddress.getHostAddress(), WifiNsdManager.this.port );
+                                        }
+
+                                    }
+                                }
+
+                        );
+
+                    }
+
+                }
+
             }
         };
         this.intentFilter = new IntentFilter();
-        context.registerReceiver(this.broadcastReceiver, this.intentFilter);
+        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+
+        this.localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
+        this.context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
 
@@ -160,6 +198,8 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
 
         final String funcTag = "Find> ";
 
+        Log.d(classTag+funcTag, "start find service.");
+
         /*
         If we try to start another instance of service discovery while we are already searching,
         then we are in an error state and throw a new RuntimeException. Whatever calls this should
@@ -169,7 +209,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             throw new RuntimeException(classTag+funcTag+"wifiP2pServiceRequest already has a value.");
         }
 
-        final String serviceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
+        Log.d(classTag+funcTag, "After runtime exception check.");
 
         this.wifiP2pManager.setDnsSdResponseListeners(
                 this.wifiP2pChannel,
@@ -191,13 +231,47 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                 }
         );
 
+        this.wifiP2pServiceRequest = WifiP2pDnsSdServiceRequest.newInstance();
+
+        this.wifiP2pManager.addServiceRequest(
+                this.wifiP2pChannel,
+                this.wifiP2pServiceRequest,
+                new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(classTag+funcTag,"addServiceRequest - success.");
+                    }
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.d(classTag+funcTag,"addServiceRequest - failure.");
+                    }
+                }
+        );
+
+        this.wifiP2pManager.discoverServices(
+                this.wifiP2pChannel,
+                new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(classTag+funcTag,"discoverServices - success.");
+                    }
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.d(classTag+funcTag,"discoverServices - failure.");
+                    }
+                }
+        );
+
+        Log.d(classTag+funcTag, "end of func.");
+
     }
 
     @Override
     public void connectToService(Map<String,String> nsdInfo) {
 
-        String instanceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
-        this.currentSession = instanceName;
+        String instanceName = nsdInfo.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
+        // this.currentSession = instanceName;
+
 
         /*
         Connect to all of the devices which we have tracked for the particular service instance.
@@ -207,6 +281,11 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         }
 
         this.nsdState = new OngoingSessionState();
+
+    }
+
+    @Override
+    public void openSocketCommunication(ConnectionListener connectionListener) {
 
     }
 
@@ -298,7 +377,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                 }
         );
 
-        this.context.unregisterReceiver(this.broadcastReceiver);
+        this.localBroadcastManager.unregisterReceiver(this.broadcastReceiver);
 
     }
 
@@ -332,7 +411,6 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             Double check that it is our service.
              */
             if (otherServiceName.equals(WifiNsdManager.NSD_INFO_SERVICE_NAME_VALUE)) {
-
                 /*
                 If we get ere then it's our service. Do something based on the NsdManager state.
                  */
@@ -424,6 +502,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             Now we add the device to the set of devices.
              */
             deviceSet.add(device);
+            WifiNsdManager.this.port = Integer.parseInt(otherServiceInfoMap.get(WifiNsdManager.NSD_INFO_SERVICE_PORT_ID));
 
         }
     }

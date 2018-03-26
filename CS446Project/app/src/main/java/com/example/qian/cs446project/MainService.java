@@ -85,6 +85,7 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("ServiceDestroy>","Started destroying service.");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainServiceReceiver);
         mainServiceFilter = null;
         mainServiceReceiver = null;

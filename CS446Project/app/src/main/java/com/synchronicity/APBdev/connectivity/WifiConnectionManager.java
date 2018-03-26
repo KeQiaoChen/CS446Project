@@ -4,14 +4,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.example.qian.cs446project.Playlist;
 import com.example.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
 import com.synchronicity.APBdev.util.StampUtil;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,9 +80,11 @@ public class WifiConnectionManager implements ConnectionManager {
 
     public WifiConnectionManager(Context context) {
 
+        Log.d(classTag,"Constructor call");
+
         this.context = context;
-        this.nsdManager = new WifiNsdManager(context);
         this.socketManager = new WifiSocketManager(context);
+        this.nsdManager = new WifiNsdManager(context, this.socketManager);
         // BroadcastReceive creation and registration + LocalBroadcastManager.
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         this.broadcastReceiver = new BroadcastReceiver() {
@@ -103,13 +110,16 @@ public class WifiConnectionManager implements ConnectionManager {
                     WifiConnectionManager.this.findSessions();
 
                 }
-
             }
         };
         this.intentFilter = new IntentFilter();
+        // Actions for intra component communication.
         intentFilter.addAction(context.getString(R.string.create_session_message));
         intentFilter.addAction(context.getString(R.string.join_session_message));
         intentFilter.addAction(context.getString(R.string.find_session_message));
+        // LocalBroadcastManager registration for BroadcastReceiver.
+        localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
+        // Global registration for BroadcastReceiver.
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
@@ -140,8 +150,9 @@ public class WifiConnectionManager implements ConnectionManager {
     public void joinSession(String sessionName) {
 
         Map<String,String> tempRecord = new HashMap<>();
-
         tempRecord.put(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID, sessionName);
+
+        nsdManager.connectToService(tempRecord);
 
     }
 
@@ -169,7 +180,11 @@ public class WifiConnectionManager implements ConnectionManager {
     public void cleanUp() {
         this.nsdManager.cleanUp();
         this.socketManager.cleanUp();
-        this.context.unregisterReceiver(this.broadcastReceiver);
+        this.localBroadcastManager.unregisterReceiver(this.broadcastReceiver);
     }
+
+    /*
+    PRIVATE METHODS
+     */
 
 }

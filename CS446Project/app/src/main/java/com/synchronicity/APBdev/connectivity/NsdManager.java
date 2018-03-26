@@ -1,5 +1,7 @@
 package com.synchronicity.APBdev.connectivity;
 
+import android.net.wifi.p2p.WifiP2pManager;
+
 import java.util.ArrayList;
 
 /**
@@ -16,11 +18,15 @@ import java.util.ArrayList;
 
 public interface NsdManager<T> {
 
+        interface ConnectionListener {};
+
         void advertiseService(T nsdInfo);
 
         void findService(T nsdInfo);
 
         void connectToService(T nsdInfo);
+
+        void openSocketCommunication(ConnectionListener connectionListener);
 
         void createServiceGroup();
 
