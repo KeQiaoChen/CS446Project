@@ -44,7 +44,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
         // HostMusicPlayerActivity represents screen 6 in the mockup. A Playlist is passed to
         // HostMusicPlayerActivity to represent the session playlist.
         setPlaylist(playlist);
-        baseConnectionManager.initiateSession("Demo");
+        //baseConnectionManager.initiateSession("Demo");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                     // Connection Manager that the host has played, paused, or stopped the playlist
                     // by calling a method in the Connection Manager. We plan to replace these
                     // method calls with broadcast Intents.
-                    baseConnectionManager.sendSig(WifiConnectionManager.SIG_PLAY_CODE);
+                    //baseConnectionManager.sendSig(WifiConnectionManager.SIG_PLAY_CODE);
                     playPauseButtons.setImageResource(android.R.drawable.ic_media_pause);
                     playPauseButtons.setOnClickListener(new View.OnClickListener() {
 
@@ -109,7 +109,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                     // Connection Manager that the host has played, paused, or stopped the playlist
                     // by calling a method in the Connection Manager. We plan to replace these
                     // method calls with broadcast Intents.
-                    baseConnectionManager.sendSig(WifiConnectionManager.SIG_PAUSE_CODE);
+                    //baseConnectionManager.sendSig(WifiConnectionManager.SIG_PAUSE_CODE);
                     enablePlay();
                 }
             }
@@ -119,7 +119,8 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                 hostMusicPlayerReceiver, hostMusicPlayerActivityFilter
         );
         // Broadcast an Intent to indicate that HostMusicPlayerActivity has started.
-        Intent startedIntent = new Intent(applicationContext.getString(R.string
+        Intent startedIntent =
+                new Intent(applicationContext.getString(R.string
                 .host_music_player_activity_started));
         startedIntent.putExtra(applicationContext.getString(R.string.session_playlist), playlist);
         LocalBroadcastManager.getInstance(this).sendBroadcast(startedIntent);
@@ -143,7 +144,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
         // TODO: Currently, the Music Player on the host's phone notifies the Connection Manager
         // that the host has played, paused, or stopped the playlist by calling a method in the
         // Connection Manager. We plan to replace these method calls with broadcast Intents.
-        baseConnectionManager.sendSig(WifiConnectionManager.SIG_STOP_CODE);
+        //baseConnectionManager.sendSig(WifiConnectionManager.SIG_STOP_CODE);
         enablePlay();
     }
 
