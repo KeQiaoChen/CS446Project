@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -457,7 +456,7 @@ public class WifiSocketManager implements SocketManager {
         headerTop += 1;
 
         // Next we need to stamp the data.
-        long stamp = StampUtil.getNewStamp();
+        long stamp = StampUtil.newUniqueStamp();
 
         for (int i = 0; i < 8; i++) {
             dataHeader[headerTop] = (byte) (stamp >> i*8);

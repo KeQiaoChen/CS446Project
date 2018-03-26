@@ -125,16 +125,13 @@ public class WifiConnectionManager implements ConnectionManager {
         this.nsdManager.createServiceGroup();
         this.socketManager.initServerSocket();
         int hostPort = this.socketManager.getServerPort();
-        String hostAddress = this.socketManager.getServerAddress();
 
         Map<String,String> tempRecord = new HashMap<>();
         tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID, WifiNsdManager.NSD_INFO_SERVICE_NAME_VALUE);
         tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_ID, WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_VALUE);
         tempRecord.put(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID, sessionName);
         tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_PORT_ID, Integer.toString(hostPort));
-        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_ADDRESS_ID, hostAddress);
-        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_AD_ID, Long.toString(StampUtil.getNewStamp()));
-        tempRecord.put(WifiNsdManager.NSD_INFO_SERVCIE_OLD_AD_ID, Long.toString(0));
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_TIME_ID, Long.toString(StampUtil.newTimeStamp()));
 
         this.nsdManager.advertiseService(tempRecord);
 
@@ -143,16 +140,18 @@ public class WifiConnectionManager implements ConnectionManager {
     public void joinSession(String sessionName) {
 
         Map<String,String> tempRecord = new HashMap<>();
+
         tempRecord.put(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID, sessionName);
 
-        this.nsdManager.connectToService(tempRecord);
     }
 
     public void findSessions() {
 
-        Map
-                ,
-        this.nsdManager.findService(recordMap);
+        Map<String,String> tempRecord = new HashMap<>();
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID, WifiNsdManager.NSD_INFO_SERVICE_NAME_VALUE);
+
+        this.nsdManager.findService(tempRecord);
+
     }
 
     public void sendData(Parcelable parcelable) {

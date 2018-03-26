@@ -15,10 +15,8 @@ import android.util.Log;
 
 import com.example.qian.cs446project.R;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,9 +42,10 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private WifiP2pManager.Channel wifiP2pChannel;
     private WifiP2pServiceInfo wifiP2pServiceInfo;
     private WifiP2pServiceRequest wifiP2pServiceRequest;
-    private HashMap<String,HashSet<WifiP2pDevice>> sessionMap;
+    private Map<String,Set<WifiP2pDevice>> sessionMap;
     private NsdState nsdState;
     private String currentSession;
+    private Map<String,String> serviceInfoMap;
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
@@ -66,8 +65,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     public static final String NSD_INFO_SERVICE_PROTOCOL_ID = "sProtocol";
     public static final String NSD_INFO_SERVICE_PORT_ID = "sPort";
     public static final String NSD_INFO_SERVICE_ADDRESS_ID = "sAddress";
-    public static final String NSD_INFO_SERVICE_AD_ID = "sAd";
-    public static final String NSD_INFO_SERVCIE_OLD_AD_ID = "sOldId";
+    public static final String NSD_INFO_SERVICE_TIME_ID = "sTime";
     public static final String NSD_INFO_SERVICE_NAME_VALUE ="Synchronicity";
     public static final String NSD_INFO_SERVICE_PROTOCOL_VALUE ="_presence._tcp";
     /*
@@ -94,6 +92,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         this.sessionMap = new HashMap<>();
         this.nsdState = new PreSessionState();
         this.currentSession = "";
+        this.serviceInfoMap = null;
 
         this.localBroadcastManager = LocalBroadcastManager.getInstance(this.context);
         // BroadcastReceive creation and registration.
@@ -130,6 +129,8 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         
         String serviceName = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
         String serviceProtocol = nsdInfo.get(WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_ID);
+
+        this.serviceInfoMap = nsdInfo;
 
         this.wifiP2pServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
                 serviceName,
@@ -182,17 +183,10 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                     @Override
                     public void onDnsSdTxtRecordAvailable(String fullDomainName, Map<String, String> txtRecordMap, WifiP2pDevice srcDevice) {
                         Log.d(classTag+funcTag,"findService - text record available.");
-                        String otherServiceName = txtRecordMap.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
                         /*
-                        Check if the other service is our app. If so, then get the name of the
-                        session being advertised, and add it to our set of available sessions.
-                        If the session already exists, then add the new device to the set of devices
-                        associated with the session.
+                        Allow the helper function to decide if this is our app and do things with it.
                          */
-                        if (serviceName == otherServiceName) {
-                            String otherServiceInstance = txtRecordMap.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
-                            updateSessionMap(otherServiceInstance, srcDevice);
-                        }
+                        updateSessionMap(txtRecordMap, srcDevice);
                     }
                 }
         );
@@ -325,8 +319,29 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     want to only update the sessionMap variable with information about new serviceInstances that the
     user encounters, and delay connection until the user chooses a service instance to join.
      */
-    private void updateSessionMap(String instanceName, WifiP2pDevice device) {
-        this.nsdState.updateServiceMap(instanceName, device);
+    private void updateSessionMap(Map<String, String> otherServiceInfoMap, WifiP2pDevice device) {
+
+        String otherServiceName = otherServiceInfoMap.get(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID);
+
+        /*
+        Check that we actually retrieved a value. If this isn't our service, this is very unlikely.
+         */
+        if (otherServiceInfoMap != null) {
+
+            /*
+            Double check that it is our service.
+             */
+            if (otherServiceName.equals(WifiNsdManager.NSD_INFO_SERVICE_NAME_VALUE)) {
+
+                /*
+                If we get ere then it's our service. Do something based on the NsdManager state.
+                 */
+                this.nsdState.updateServiceMap(otherServiceInfoMap, device);
+
+            }
+
+        }
+
     }
 
     /*
@@ -366,7 +381,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     An inner interface facilitating the state dependent behaviour for WifiNsdManager.
      */
     private interface NsdState {
-        void updateServiceMap(String instanceName, WifiP2pDevice device);
+        void updateServiceMap(Map<String, String> otherServiceInfoMap, WifiP2pDevice device);
     }
 
     /*
@@ -375,25 +390,41 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
      */
     private class PreSessionState implements NsdState {
         @Override
-        public void updateServiceMap(String instanceName, WifiP2pDevice device) {
+        public void updateServiceMap(Map<String, String> otherServiceInfoMap, WifiP2pDevice device) {
 
-            if (!WifiNsdManager.this.sessionMap.containsKey(instanceName)) {
+            Map<String,Set<WifiP2pDevice>> sessionMap = WifiNsdManager.this.sessionMap;
 
-                WifiNsdManager.this.sessionMap.put(
-                        instanceName,
-                        new HashSet<WifiP2pDevice>()
-                );
+            String otherInstanceName = otherServiceInfoMap.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
+            Set<WifiP2pDevice> deviceSet = sessionMap.get(otherInstanceName);
 
-                /*
-                We haven't encountered this session instance before, so we want to update the
-                components that care about knowing of new sessions in a pre-session state.
-                */
+            /*
+            Double check that the map does not contain the key. If not, then let other components
+            know that we encountered a new instance.
+             */
+            if (!sessionMap.containsKey(otherInstanceName)) {
+
                 Intent broadcastIntent = new Intent(context.getString(R.string.find_session_return));
-                broadcastIntent.putExtra(context.getString(R.string.available_sessions_key), instanceName);
+                broadcastIntent.putExtra(context.getString(R.string.available_sessions_key), otherInstanceName);
                 localBroadcastManager.sendBroadcast(broadcastIntent);
 
             }
-            WifiNsdManager.this.sessionMap.get(instanceName).add(device);
+
+            /*
+            If we haven't encountered this service instance then create an entry in the session map
+            that contains a set of devices.
+             */
+            if (deviceSet == null) {
+
+                deviceSet = new HashSet<>();
+                sessionMap.put(otherInstanceName, deviceSet);
+
+            }
+
+            /*
+            Now we add the device to the set of devices.
+             */
+            deviceSet.add(device);
+
         }
     }
 
@@ -403,12 +434,33 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
      */
     private class OngoingSessionState implements NsdState {
         @Override
-        public void updateServiceMap(String instanceName, WifiP2pDevice device) {
-            if (instanceName == WifiNsdManager.this.currentSession) {
-                WifiNsdManager.this.sessionMap.get(instanceName).add(device);
+        public void updateServiceMap(Map<String, String> otherServiceInfoMap, WifiP2pDevice device) {
+
+            // The ad that we rebroadcast when we joined a session.
+            Map<String,String> ourServiceInfoMap = WifiNsdManager.this.serviceInfoMap;
+            // The mapping between us and the devices that we are interested in connecting to.
+            Map<String,Set<WifiP2pDevice>> sessionMap = WifiNsdManager.this.sessionMap;
+
+            // Times that our ad was put out, and other ad was put out.
+            long ourAdTime = Long.parseLong(ourServiceInfoMap.get(WifiNsdManager.NSD_INFO_SERVICE_TIME_ID));
+            long otherAdTime = Long.parseLong(otherServiceInfoMap.get(WifiNsdManager.NSD_INFO_SERVICE_TIME_ID));
+            // The name of our session instance, and the other session instance.
+            String ourInstanceName = ourServiceInfoMap.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
+            String otherInstanceName = otherServiceInfoMap.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
+
+            /*
+            If this is the same instance of a session that we are in and the ad they was put out
+            earlier than ours, then we want to connect to them.
+             */
+            if (ourInstanceName == otherInstanceName && ourAdTime > otherAdTime) {
+
+                sessionMap.get(ourInstanceName).add(device);
                 WifiNsdManager.this.establishConnection(device);
+
             }
+
         }
+
     }
 
 }
