@@ -10,7 +10,7 @@ public interface ConnectionManager {
     void findSessions();
     void sendData(Parcelable parcelable);
     void sendDataByPath(String pathToData);
-    void sendSignal(int signal);
+    void sendSignal(byte signal);
     void cleanUp();
 
 }

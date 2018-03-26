@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.qian.cs446project.Playlist;
+import com.example.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
 import com.synchronicity.APBdev.util.StampUtil;
 
@@ -39,6 +41,8 @@ public class WifiSocketManager implements SocketManager {
     private Set<ServerInfo> serverInfoSet;
     private DistributionStrategy distributionStrategy;
     private DataStampPool dataStampPool;
+    private Playlist playlist;
+    private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
 
@@ -93,6 +97,7 @@ public class WifiSocketManager implements SocketManager {
         this.activeConnectionsSet = new HashSet<>();
         this.serverInfoSet = new HashSet<>();
         this.dataStampPool = new DataStampPool(32);
+        this.playlist = null;
         this.distributionStrategy = new GreedyStrategy();
         try {
             this.serverSocket = new ServerSocket();
@@ -100,18 +105,37 @@ public class WifiSocketManager implements SocketManager {
             ioException.printStackTrace();
             Log.d(classTag,"An IO exception was thrown in the SocketManager constructor.");
         }
+        this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         // BroadcastReceive creation and registration.
         this.broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 
+                /*
+
+                String action = intent.getAction();
+
+                if (action.equals(context.getString(R.string.return_session_playlist))) {
+
+                    WifiSocketManager.this.playlist = intent.getExtras().getParcelable(context.getString(R.string.session_playlist));
+
+                }
+                else if (action.equals(context.getString(R.string.user_chose_session))) {
+
+                    Intent broadcastIntent = new Intent(context.getString(R.string.playlist_ready));
+                    broadcastIntent.putExtra(context.getString(R.string.session_playlist), WifiSocketManager.this.playlist);
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
+
+                }
+
+                */
+
             }
         };
         this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
+        this.intentFilter.addAction(context.getString(R.string.return_session_playlist));
+        this.intentFilter.addAction(context.getString(R.string.user_chose_session));
+
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
@@ -181,6 +205,10 @@ public class WifiSocketManager implements SocketManager {
         this.serverInfoSet.add(new ServerInfo(hostName, hostPort));
         this.activeConnectionsSet.add(remoteSocket);
         this.initDataReceiveHandler(remoteSocket);
+
+        /*
+        Form another temporary connection and
+         */
 
     }
 
@@ -392,7 +420,6 @@ public class WifiSocketManager implements SocketManager {
             remoteSocket = new Socket();
             remoteSocket.bind(null);
             remoteSocket.connect(new InetSocketAddress(hostName, hostPort), 500);
-            return remoteSocket;
         } catch (IOException ioException) {
             Log.d(classTag+funcTag,"There was an IO exception.");
             ioException.printStackTrace();

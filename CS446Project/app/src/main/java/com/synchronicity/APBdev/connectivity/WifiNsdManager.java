@@ -95,10 +95,6 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             }
         };
         this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }

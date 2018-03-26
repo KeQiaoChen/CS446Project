@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
+
+import com.example.qian.cs446project.Playlist;
+import com.example.qian.cs446project.R;
+import com.synchronicity.APBdev.util.ParcelableUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class WifiConnectionManager implements ConnectionManager {
     private NsdManager nsdManager;
     private SocketManager socketManager;
     private Map<String,String> recordMap;
+    private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
 
@@ -76,7 +82,8 @@ public class WifiConnectionManager implements ConnectionManager {
         // Fill recordMap info here.
         recordMap.put("foo","bar");
 
-        // BroadcastReceive creation and registration.
+        // BroadcastReceive creation and registration + LocalBroadcastManager.
+        this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         this.broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -84,10 +91,6 @@ public class WifiConnectionManager implements ConnectionManager {
             }
         };
         this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
-        this.intentFilter.addAction();
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }

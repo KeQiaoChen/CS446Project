@@ -10,6 +10,9 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.synchronicity.APBdev.connectivity.ConnectionManager;
+import com.synchronicity.APBdev.connectivity.WifiConnectionManager;
+
 public class MainService extends Service {
 
     private IntentFilter mainServiceFilter;
@@ -17,6 +20,7 @@ public class MainService extends Service {
     private HostMusicPlayer hostMusicPlayer;
     private ParticipantMusicPlayer participantMusicPlayer;
     private PlaylistManager playlistManager;
+    private ConnectionManager connectionManager;
 
     public MainService() {
     }
@@ -24,7 +28,12 @@ public class MainService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         final Context applicationContext = getApplicationContext();
+
+        // Hari's component instantiation.
         playlistManager = new PlaylistManager(getApplicationContext());
+        // Andrew's component instantiation.
+        connectionManager = new WifiConnectionManager(applicationContext);
+
         mainServiceFilter = new IntentFilter();
         // When HostMusicPlayerActivity starts, create an instance of HostMusicPlayer, which acts as
         // the model in the MVC design pattern such that HostMusicPlayerActivity is the view.
@@ -87,6 +96,14 @@ public class MainService extends Service {
             participantMusicPlayer.cleanUp();
             participantMusicPlayer = null;
         }
+
+        /*
+        CONNECTION MANAGER CLEANUP CODE
+         */
+        if(connectionManager != null) {
+            connectionManager.cleanUp();
+        }
+
     }
 
 }
