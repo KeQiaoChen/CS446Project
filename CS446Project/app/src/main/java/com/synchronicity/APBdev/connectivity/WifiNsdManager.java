@@ -10,7 +10,10 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import com.example.qian.cs446project.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +47,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private HashMap<String,HashSet<WifiP2pDevice>> sessionMap;
     private NsdState nsdState;
     private String currentSession;
+    private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
     /*
@@ -61,6 +65,9 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     public static final String NSD_INFO_SERVICE_NAME_ID = "sName";
     public static final String NSD_INFO_SERVICE_PROTOCOL_ID = "sProtocol";
     public static final String NSD_INFO_SERVICE_PORT_ID = "sPort";
+    public static final String NSD_INFO_SERVICE_ADDRESS_ID = "sAddress";
+    public static final String NSD_INFO_SERVICE_AD_ID = "sAd";
+    public static final String NSD_INFO_SERVCIE_OLD_AD_ID = "sOldId";
     public static final String NSD_INFO_SERVICE_NAME_VALUE ="Synchronicity";
     public static final String NSD_INFO_SERVICE_PROTOCOL_VALUE ="_presence._tcp";
     /*
@@ -88,6 +95,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         this.nsdState = new PreSessionState();
         this.currentSession = "";
 
+        this.localBroadcastManager = LocalBroadcastManager.getInstance(this.context);
         // BroadcastReceive creation and registration.
         this.broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -96,8 +104,6 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             }
         };
         this.intentFilter = new IntentFilter();
-        intentFilter.addAction(context.getString(R.string.));
-
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
@@ -139,7 +145,6 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                     public void onSuccess() {
                         Log.d(classTag +funcTag,"addLocalService success.");
                     }
-
                     @Override
                     public void onFailure(int reason) {
                         Log.d(classTag +funcTag,"addLocalService failure.");
@@ -150,7 +155,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     }
 
     @Override
-    public ArrayList<String> findService(Map<String,String> nsdInfo) {
+    public void findService(Map<String,String> nsdInfo) {
 
         final String funcTag = "Find> ";
 
@@ -208,6 +213,27 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
         }
 
         this.nsdState = new OngoingSessionState();
+
+    }
+
+    @Override
+    public void createServiceGroup() {
+
+        final String funcTag = "newGroup> ";
+
+        this.wifiP2pManager.createGroup(
+                this.wifiP2pChannel,
+                new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                       Log.d(classTag+funcTag,"createGroup success.");
+                    }
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.d(classTag+funcTag, "createGroup failure");
+                    }
+                }
+        );
 
     }
 
@@ -350,14 +376,22 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private class PreSessionState implements NsdState {
         @Override
         public void updateServiceMap(String instanceName, WifiP2pDevice device) {
+
             if (!WifiNsdManager.this.sessionMap.containsKey(instanceName)) {
+
                 WifiNsdManager.this.sessionMap.put(
                         instanceName,
                         new HashSet<WifiP2pDevice>()
                 );
-                // We haven't encountered this session instance before, so we want to update the
-                // components that care about knowing of new sessions in a pre-session state.
-                Intent broadcastIntent = new Intent()
+
+                /*
+                We haven't encountered this session instance before, so we want to update the
+                components that care about knowing of new sessions in a pre-session state.
+                */
+                Intent broadcastIntent = new Intent(context.getString(R.string.find_session_return));
+                broadcastIntent.putExtra(context.getString(R.string.available_sessions_key), instanceName);
+                localBroadcastManager.sendBroadcast(broadcastIntent);
+
             }
             WifiNsdManager.this.sessionMap.get(instanceName).add(device);
         }

@@ -12,6 +12,8 @@ public interface SocketManager {
         void onReceive(Socket remoteSocket);
     }
 
+    int getServerPort();
+    String getServerAddress();
     void initServerSocket();
     void connectToServer(final String hostName, final int hostPort);
     void sendData(Parcelable parcelable);

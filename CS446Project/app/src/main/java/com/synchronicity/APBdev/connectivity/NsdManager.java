@@ -18,9 +18,11 @@ public interface NsdManager<T> {
 
         void advertiseService(T nsdInfo);
 
-        ArrayList<String> findService(T nsdInfo);
+        void findService(T nsdInfo);
 
         void connectToService(T nsdInfo);
+
+        void createServiceGroup();
 
         void cleanUp();
 

@@ -9,7 +9,7 @@ public interface ConnectionManager {
     // Methods for common connectivity of ConnectionManager.
     void createSession(String sessionName);
     void joinSession(String sessionName);
-    ArrayList<String> findSessions();
+    void findSessions();
     void sendData(Parcelable parcelable);
     void sendDataByPath(String pathToData);
     void sendSignal(byte signal);

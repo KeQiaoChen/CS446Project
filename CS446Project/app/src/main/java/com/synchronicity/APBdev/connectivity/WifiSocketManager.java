@@ -146,6 +146,22 @@ public class WifiSocketManager implements SocketManager {
      */
 
     /*
+    Return the port that this server is listening on.
+     */
+    @Override
+    public int getServerPort() {
+        return this.serverSocket.getLocalPort();
+    }
+
+    /*
+    Return the address which this server is initialized to.
+     */
+    @Override
+    public String getServerAddress() {
+        return this.serverSocket.getInetAddress().getHostAddress();
+    }
+
+    /*
     Initializes a server socket so that it may receive incoming connection requests. Upon receiving
     a request, the ServerSocket creates a Socket object that can be used for two way communication.
      */

@@ -10,6 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.example.qian.cs446project.Playlist;
 import com.example.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
+import com.synchronicity.APBdev.util.StampUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +61,6 @@ public class WifiConnectionManager implements ConnectionManager {
     private Context context;
     private NsdManager nsdManager;
     private SocketManager socketManager;
-    private Map<String,String> recordMap;
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
@@ -78,11 +78,6 @@ public class WifiConnectionManager implements ConnectionManager {
         this.context = context;
         this.nsdManager = new WifiNsdManager(context);
         this.socketManager = new WifiSocketManager(context);
-        this.recordMap = new HashMap<>();
-
-        // Fill recordMap info here.
-        recordMap.put("foo","bar");
-
         // BroadcastReceive creation and registration + LocalBroadcastManager.
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         this.broadcastReceiver = new BroadcastReceiver() {
@@ -126,15 +121,38 @@ public class WifiConnectionManager implements ConnectionManager {
 
 
     public void createSession(String sessionName) {
-        this.nsdManager.advertiseService(recordMap);
+
+        this.nsdManager.createServiceGroup();
+        this.socketManager.initServerSocket();
+        int hostPort = this.socketManager.getServerPort();
+        String hostAddress = this.socketManager.getServerAddress();
+
+        Map<String,String> tempRecord = new HashMap<>();
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_NAME_ID, WifiNsdManager.NSD_INFO_SERVICE_NAME_VALUE);
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_ID, WifiNsdManager.NSD_INFO_SERVICE_PROTOCOL_VALUE);
+        tempRecord.put(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID, sessionName);
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_PORT_ID, Integer.toString(hostPort));
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_ADDRESS_ID, hostAddress);
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVICE_AD_ID, Long.toString(StampUtil.getNewStamp()));
+        tempRecord.put(WifiNsdManager.NSD_INFO_SERVCIE_OLD_AD_ID, Long.toString(0));
+
+        this.nsdManager.advertiseService(tempRecord);
+
     }
 
     public void joinSession(String sessionName) {
-        this.nsdManager.connectToService(recordMap);
+
+        Map<String,String> tempRecord = new HashMap<>();
+        tempRecord.put(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID, sessionName);
+
+        this.nsdManager.connectToService(tempRecord);
     }
 
-    public ArrayList<String> findSessions() {
-        return this.nsdManager.findService(recordMap);
+    public void findSessions() {
+
+        Map
+                ,
+        this.nsdManager.findService(recordMap);
     }
 
     public void sendData(Parcelable parcelable) {
