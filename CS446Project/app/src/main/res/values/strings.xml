@@ -88,9 +88,6 @@
     <string name="session_name">session_name</string>
     <!--Name of the Intent HostMusicPlayer broadcasts that contains the session playlist-->
     <string name="return_session_playlist">&domain_name;return_session_playlist</string>
-    <!--Name of the Intent ChooseSessionActivity broadcasts to tell other components that it is
-    requesting a list of available sessions the user can join-->
-    <string name="find_sessions">&domain_name;find_sessions</string>
     <string name="start_session">Start Session</string>
     <string name="enter_session_name">Enter Session Name</string>
     <string name="select_playlist_to_upload_to_session">Select Playlist to Upload to Session:</string>

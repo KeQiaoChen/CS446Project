@@ -34,57 +34,47 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
         applicationContext = getApplicationContext();
         // TODO: Since our application cannot yet send files from one device to another,
         // participants just use the first of their personal playlists.
-        ArrayList<Playlist> allPlaylists = PlaylistManager.listAllAppPlaylists(applicationContext);
-        if (allPlaylists == null || allPlaylists.size() == 0) {
-            Toast errorToast = Toast.makeText(applicationContext, "Participant failed to retrieve session playlist.",
-                    Toast.LENGTH_SHORT);
-            errorToast.setMargin(50, 50);
-            errorToast.show();
-            baseConnectionManager.cleanUp();
-            System.exit(1);
-        } else {
-            playlist = allPlaylists.get(0);
-            PlaylistManager.listAllPlaylistSongs(applicationContext, playlist);
-
-            if (playlist.songs == null || playlist.songs.size() == 0) {
-                Toast errorToast = Toast.makeText(applicationContext, "Participant failed to retrieve session playlist songs.",
-                        Toast.LENGTH_SHORT);
-                errorToast.setMargin(50, 50);
-                errorToast.show();
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(participantMusicPlayerReceiver);
-                participantIntentFilter = null;
-                participantMusicPlayerReceiver = null;
-                baseConnectionManager.cleanUp();
-                System.exit(1);
-            }
-            setPlaylist(playlist);
-            waitMessage.setVisibility(View.INVISIBLE);
-            // Broadcast an Intent to indicate that ParticipantMusicPlayerActivity has
-            // started and has the playlist.
-            Intent startedIntent = new Intent(applicationContext.getString(R.string
-                    .participant_music_player_activity_started));
-            startedIntent.putExtra(applicationContext.getString(R.string.session_playlist),
-                    playlist);
-            LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
-                    .sendBroadcast(startedIntent);
-            // Andrew's code
-            baseConnectionManager.joinSession("Demo");
-        }
+//        ArrayList<Playlist> allPlaylists = PlaylistManager.listAllAppPlaylists(applicationContext);
+//        if (allPlaylists == null || allPlaylists.size() == 0) {
+//            Toast errorToast = Toast.makeText(applicationContext, "Participant failed to retrieve session playlist.",
+//                    Toast.LENGTH_SHORT);
+//            errorToast.setMargin(50, 50);
+//            errorToast.show();
+//            //baseConnectionManager.cleanUp();
+//            System.exit(1);
+//        } else {
+//            playlist = allPlaylists.get(0);
+//            PlaylistManager.listAllPlaylistSongs(applicationContext, playlist);
+//
+//            if (playlist.songs == null || playlist.songs.size() == 0) {
+//                Toast errorToast = Toast.makeText(applicationContext, "Participant failed to retrieve session playlist songs.",
+//                        Toast.LENGTH_SHORT);
+//                errorToast.setMargin(50, 50);
+//                errorToast.show();
+//                LocalBroadcastManager.getInstance(this).unregisterReceiver(participantMusicPlayerReceiver);
+//                participantIntentFilter = null;
+//                participantMusicPlayerReceiver = null;
+//                //baseConnectionManager.cleanUp();
+//                System.exit(1);
+//            }
+//            setPlaylist(playlist);
+//            waitMessage.setVisibility(View.INVISIBLE);
+//            // Broadcast an Intent to indicate that ParticipantMusicPlayerActivity has
+//            // started and has the playlist.
+//            Intent startedIntent = new Intent(applicationContext.getString(R.string
+//                    .participant_music_player_activity_started));
+//            startedIntent.putExtra(applicationContext.getString(R.string.session_playlist),
+//                    playlist);
+//            LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
+//                    .sendBroadcast(startedIntent);
+//            // Andrew's code
+//            //baseConnectionManager.joinSession("Demo");
+//        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // Broadcast an Intent to tell other components that the user has joined a certain session
-        // and is requesting the session playlist. This Intent contains the session name.
-        Intent participantJoinedSessionIntent =
-                new Intent(applicationContext.getString(R.string.user_chose_session));
-        String sessionName =
-                getIntent().getStringExtra(applicationContext.getString(R.string.session_name));
-        participantJoinedSessionIntent
-                .putExtra(applicationContext.getString(R.string.name_of_chosen_session),
-                        sessionName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(participantJoinedSessionIntent);
         participantIntentFilter = new IntentFilter();
         // When the host presses Play for the session playlist, the session playlist should play on
         // the participant's device.
@@ -131,6 +121,16 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 participantMusicPlayerReceiver, participantIntentFilter
         );
+        // Broadcast an Intent to tell other components that the user has joined a certain session
+        // and is requesting the session playlist. This Intent contains the session name.
+        Intent participantJoinedSessionIntent =
+                new Intent(applicationContext.getString(R.string.user_chose_session));
+        String sessionName =
+                getIntent().getStringExtra(applicationContext.getString(R.string.session_name));
+        participantJoinedSessionIntent
+                .putExtra(applicationContext.getString(R.string.name_of_chosen_session),
+                        sessionName);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(participantJoinedSessionIntent);
     }
 
     @Override
