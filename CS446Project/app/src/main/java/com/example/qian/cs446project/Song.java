@@ -48,6 +48,10 @@ public class Song implements Parcelable {
         return filePath;
     }
 
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
     public int getLocalDeviceFileID() {
         return localDeviceFileID;
     }

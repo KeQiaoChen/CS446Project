@@ -45,7 +45,6 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
         // HostMusicPlayerActivity to represent the session playlist.
         setPlaylist(playlist);
         baseConnectionManager.initiateSession("Demo");
-
     }
 
     @Override
@@ -155,17 +154,11 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        hostMusicPlayerActivityFilter = null;
-        hostMusicPlayerReceiver = null;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(hostMusicPlayerReceiver);
-
+        hostMusicPlayerActivityFilter = null;
+        hostMusicPlayerReceiver = null;
     }
 
 }

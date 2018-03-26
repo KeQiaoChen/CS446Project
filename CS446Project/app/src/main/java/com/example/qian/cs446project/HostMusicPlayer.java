@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import static com.example.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
 
@@ -13,25 +15,17 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
     private BroadcastReceiver hostMusicPlayerReceiver;
     private IntentFilter hostMusicPlayerFilter;
 
-    @Override
-    void resetPlaylist() {
-        super.resetPlaylist();
-        // Broadcast an Intent to indicate that the session playlist has transitioned to a
-        // stopped state.
-        broadcastIntentWithoutExtras(applicationContext.getString(R.string.playlist_stopped),
-                applicationContext);
-    }
-
     public HostMusicPlayer(final Context applicationContext, Playlist playlist) {
         super(applicationContext, playlist);
-        // Broadcast an Intent to tell the app that the user has created a session.
-        broadcastIntentWithoutExtras(applicationContext.getString(R.string.session_created),
-                applicationContext);
+        // Broadcast the session playlist.
+        Intent returnPlaylistIntent =
+                new Intent(applicationContext
+                        .getString(R.string.return_session_playlist));
+        returnPlaylistIntent.putExtra(applicationContext
+                .getString(R.string.session_playlist), HostMusicPlayer.this.playlist);
+        LocalBroadcastManager.getInstance(applicationContext)
+                .sendBroadcast(returnPlaylistIntent);
         hostMusicPlayerFilter = new IntentFilter();
-        // When a participant joins the session, the connection manager requests the session
-        // playlist from the host.
-        hostMusicPlayerFilter.addAction(applicationContext.getString(R.string
-                .request_session_playlist));
         hostMusicPlayerFilter.addAction(applicationContext.getString(R.string.receive_stop));
         hostMusicPlayerFilter.addAction(applicationContext.getString(R.string.receive_play));
         hostMusicPlayerFilter
@@ -42,19 +36,10 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 Context applicationContext = HostMusicPlayer.this.applicationContext;
-                if (action.equals(applicationContext.getString(R.string.request_session_playlist)))
-                {
-                    Intent returnPlaylistIntent =
-                            new Intent(applicationContext
-                                    .getString(R.string.return_session_playlist));
-                    returnPlaylistIntent.putExtra(applicationContext
-                            .getString(R.string.session_playlist), HostMusicPlayer.this.playlist);
-                    LocalBroadcastManager.getInstance(applicationContext)
-                            .sendBroadcast(returnPlaylistIntent);
-                } else if (action.equals(applicationContext.getString(R.string.receive_stop))) {
+                if (action.equals(applicationContext.getString(R.string.receive_stop))) {
                     mediaPlayer.stop();
                 } else if (action.equals(applicationContext.getString(R.string.receive_play))) {
-                    mediaPlayer.start();
+                    startMediaPlayer();
                 } else if (action.equals(applicationContext.getString(R.string.receive_pause))) {
                     mediaPlayer.pause();
                 }
@@ -64,6 +49,7 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
                 hostMusicPlayerReceiver, hostMusicPlayerFilter
         );
+        createMediaPlayer();
     }
 
     @Override
@@ -92,6 +78,14 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
     public void stop() {
         if (!musicPlayerState.isStopped()) {
             super.stop();
+            makeThisGroupPlay();
+        }
+    }
+
+    void songCompleted(MediaPlayer mediaPlayer) {
+        super.songCompleted(mediaPlayer);
+        makeThisGroupPlay();
+        if (musicPlayerState.isStopped()) {
             // Broadcast an Intent to indicate that the session playlist has transitioned to a
             // stopped state.
             broadcastIntentWithoutExtras(applicationContext.getString(R.string.playlist_stopped),
