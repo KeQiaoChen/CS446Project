@@ -23,7 +23,6 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
     private Playlist playlist;
     private IntentFilter hostMusicPlayerActivityFilter;
     private BroadcastReceiver hostMusicPlayerReceiver;
-    private boolean bound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,16 +154,11 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        hostMusicPlayerActivityFilter = null;
-        hostMusicPlayerReceiver = null;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(hostMusicPlayerReceiver);
+        hostMusicPlayerActivityFilter = null;
+        hostMusicPlayerReceiver = null;
     }
 
 }

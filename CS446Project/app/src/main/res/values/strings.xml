@@ -70,9 +70,6 @@
     <!--Name of the broadcasted Intent ParticipantMusicPlayerActivity receives that contains the
     Playlist object with the metadata for all songs in the session playlist-->
     <string name="playlist_ready">&domain_name;playlist_ready</string>
-    <!--Name of the extra that the playlist_ready Intent contains that is the Playlist object
-    representing the session playlist.-->
-    <string name="session_playlist_metadata">session_playlist_metadata</string>
     <!--Name of the broadcasted Intent ChooseSessionActivity receives that contains the ArrayList
     of Strings, which lists the name of every session that the user can join.-->
     <string name="session_list_ready">&domain_name;session_list_ready</string>
@@ -82,9 +79,6 @@
     <!--The GUI that lists all sessions a user can join (screen 2 of mockup) shows this string
     before ChooseSessionActivity receives the list of session names.-->
     <string name="waiting_for_session_names">Retrieving sessions...</string>
-    <!--Name of the Intent HostMusicPlayer broadcasts to tell other components that a user
-    has finished creating a session-->
-    <string name="session_created">&domain_name;session_created</string>
     <!--Name of the Intent ChooseSessionActivity broadcasts to tell other components that a user is
     looking for a session to join-->
     <string name="user_looking_to_join_session">&domain_name;user_looking_to_join_session</string>
@@ -92,9 +86,6 @@
     ParticipantMusicPlayerActivity. This extra is a String that is the name of the session the
     user has chosen to join.-->
     <string name="session_name">session_name</string>
-    <!--Name of the broadcasted Intent HostMusicPlayer receives that indicates the
-    connection manager is requesting the session playlist.-->
-    <string name="request_session_playlist">&domain_name;request_session_playlist</string>
     <!--Name of the Intent HostMusicPlayer broadcasts that contains the session playlist-->
     <string name="return_session_playlist">&domain_name;return_session_playlist</string>
     <!--Name of the Intent ChooseSessionActivity broadcasts to tell other components that it is
@@ -170,6 +161,12 @@
     currently playing song in the session playlist (i.e. the amount of time, in milliseconds, that
     the song has played for-->
     <string name="current_position">current_position</string>
+    <!--Name of the Intent SynchronicityMusicPlayer broadcasts to indicate that it is now the other
+     group's turn to play the playlist-->
+    <string name="other_group_plays">&domain_name;other_group_plays</string>
+    <!--Name of the Intent SynchronicityMusicPlayer broadcasts to indicate that it is now the user's
+     group's turn to play the playlist-->
+    <string name="this_group_plays">&domain_name;this_group_plays</string>
     <!--Name of the Intent received by PlaylistManager as a request to publish all device songs-->
     <string name="list_all_device_songs">&domain_name;list_all_device_songs</string>
     <!--Name of the Intent published by PlaylistManager with all device songs-->

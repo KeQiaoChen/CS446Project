@@ -188,7 +188,7 @@ public class PlaylistManager {
         // Return appropriate value.
         Log.d("Playlist Manager", "END LIST ALL PLAYLIST SONGS");
         Intent allPlaylistSongsIntent = new Intent(ctx.getString(R.string.all_playlist_songs));
-        allPlaylistSongsIntent.putExtra(ctx.getString(R.string.extra_name_linkedlist_song), pl.songs);
+        allPlaylistSongsIntent.putExtra(ctx.getString(R.string.extra_name_linkedlist_song), pl);
         LocalBroadcastManager.getInstance(ctx).sendBroadcast(allPlaylistSongsIntent);
         return pl.songs;
     }

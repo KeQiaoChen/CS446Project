@@ -36,6 +36,7 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
     private BroadcastReceiver synchronicityMusicPlayerActivityReceiver;
     // Andrew's stuff
     BaseConnectionManager baseConnectionManager;
+    BroadcastReceiver wifiBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
         setContentView(R.layout.activity_host_music_player);
         applicationContext = getApplicationContext();
         baseConnectionManager = new WifiConnectionManager(this, this);
-        BroadcastReceiver wifiBroadcastReceiver = baseConnectionManager.getBroadcastReceiver();
+        wifiBroadcastReceiver = baseConnectionManager.getBroadcastReceiver();
         registerReceiver(wifiBroadcastReceiver, baseConnectionManager.getIntentFilter());
     }
 
@@ -55,18 +56,20 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
         // the GUI to indicate that the next song is playing, if applicable. Otherwise,
         // SynchronicityMusicPlayerActivity resets the progress bar, elapsed time, and remaining
         // time of each song in the session playlist.
-        synchronicityMusicPlayerActivityFilter.addAction(applicationContext.getString(R.string
+        synchronicityMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string
                 .song_completed));
         // When the session playlist transitions from a stopped state to a playing state, the
         // metadata of the first song should be bolded to show that it is playing.
         synchronicityMusicPlayerActivityFilter
                 .addAction(applicationContext.getString(R.string.playlist_not_stopped));
-        // Update the currently playing song's progress bar, elapsed time, and remaining time in
-        // the GUI as needed.
+        // Update the currently playing song's progress bar, elapsed time, and remaining time in the
+        // GUI as needed.
         synchronicityMusicPlayerActivityFilter
                 .addAction(applicationContext.getString(R.string.update_song_progress));
         // Update the GUI to reflect the fact that the playlist has been stopped.
-        synchronicityMusicPlayerActivityFilter.addAction(applicationContext.getString(R.string
+        synchronicityMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string
                 .playlist_stopped));
         // Change the icon for the mute-toggling button to a speaker and make it so that if the
         // user presses that button again, the playlist unmutes on that phone.
@@ -76,6 +79,12 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
         // so that if the user presses that button again, the playlist mutes on that phone.
         synchronicityMusicPlayerActivityFilter
                 .addAction(applicationContext.getString(R.string.unmuted_update_GUI));
+        // When it is the other group's turn to play the playlist, disable the mute toggling button.
+        synchronicityMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string.other_group_plays));
+        // When it is the user's group's turn to play the playlist, enable the mute toggling button.
+        synchronicityMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string.this_group_plays));
         synchronicityMusicPlayerActivityReceiver = new BroadcastReceiver() {
 
             @Override
@@ -84,7 +93,8 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
                 if (action.equals(applicationContext.getString(R.string.song_completed))) {
                     songCompleted(intent.getIntExtra(applicationContext.getString(R.string
                             .current_song_index), 0));
-                } else if (action.equals(applicationContext.getString(R.string.playlist_not_stopped))) {
+                } else if (action.equals(applicationContext.getString(R.string
+                        .playlist_not_stopped))) {
                     currentSong = 0;
                     songLength = playlist.songs.get(currentSong).getDuration();
                     boldSongMetadata(currentSong);
@@ -120,6 +130,11 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
                     });
                 } else if (action.equals(applicationContext.getString(R.string.playlist_stopped))) {
                     showPlaylistStopped();
+                } else if (action.equals(applicationContext.getString(R.string.other_group_plays)))
+                {
+                    muteTogglingButton.setEnabled(false);
+                } else if (action.equals(applicationContext.getString(R.string.this_group_plays))) {
+                    muteTogglingButton.setEnabled(true);
                 }
             }
 
@@ -129,9 +144,10 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
         );
     }
 
-    public void setPlaylist(Playlist playlist) {
+    void setPlaylist(Playlist playlist) {
         this.playlist = playlist;
-        customMusicAdapter = new CustomMusicAdapter(this, R.layout.song_in_gui, playlist);
+        this.customMusicAdapter =
+                new CustomMusicAdapter(this, R.layout.song_in_gui, playlist);
         ListView listView = findViewById(R.id.listViewSonglist);
         listView.setAdapter(customMusicAdapter);
     }
@@ -171,7 +187,7 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
 
     private void songCompleted(int currentSong) {
         this.currentSong = currentSong;
-        if (currentSong != 0) {
+        if (currentSong >= 1) {
             unboldSongMetadata(currentSong - 1);
             boldSongMetadata(currentSong);
         } else {
@@ -253,18 +269,16 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        synchronicityMusicPlayerActivityFilter = null;
-        synchronicityMusicPlayerActivityReceiver = null;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        customMusicAdapter = null;
         baseConnectionManager.cleanUp();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiBroadcastReceiver);
+        wifiBroadcastReceiver = null;
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(synchronicityMusicPlayerActivityReceiver);
+        synchronicityMusicPlayerActivityFilter = null;
+        synchronicityMusicPlayerActivityReceiver = null;
     }
 
 }
