@@ -11,6 +11,7 @@ import com.example.qian.cs446project.Playlist;
 import com.example.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,9 +89,32 @@ public class WifiConnectionManager implements ConnectionManager {
             @Override
             public void onReceive(Context context, Intent intent) {
 
+                String action = intent.getAction();
+
+                if (action.equals(context.getString(R.string.create_session_message))) {
+
+                    String sessionName = intent.getStringExtra(context.getString(R.string.session_name_key));
+                    WifiConnectionManager.this.createSession(sessionName);
+
+                }
+                else if (action.equals(context.getString(R.string.join_session_message))) {
+
+                    String sessionName = intent.getStringExtra(context.getString(R.string.session_name_key));
+                    WifiConnectionManager.this.joinSession(sessionName);
+
+                }
+                else if (action.equals(context.getString(R.string.find_session_message))) {
+
+                    WifiConnectionManager.this.findSessions();
+
+                }
+
             }
         };
         this.intentFilter = new IntentFilter();
+        intentFilter.addAction(context.getString(R.string.create_session_message));
+        intentFilter.addAction(context.getString(R.string.join_session_message));
+        intentFilter.addAction(context.getString(R.string.find_session_message));
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
@@ -109,8 +133,8 @@ public class WifiConnectionManager implements ConnectionManager {
         this.nsdManager.connectToService(recordMap);
     }
 
-    public void findSessions() {
-        this.nsdManager.findService(recordMap);
+    public ArrayList<String> findSessions() {
+        return this.nsdManager.findService(recordMap);
     }
 
     public void sendData(Parcelable parcelable) {

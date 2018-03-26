@@ -1,5 +1,7 @@
 package com.synchronicity.APBdev.connectivity;
 
+import java.util.ArrayList;
+
 /**
  * Created by Andrew on 2018-03-16.
  */
@@ -16,7 +18,7 @@ public interface NsdManager<T> {
 
         void advertiseService(T nsdInfo);
 
-        void findService(T nsdInfo);
+        ArrayList<String> findService(T nsdInfo);
 
         void connectToService(T nsdInfo);
 

@@ -12,6 +12,7 @@ import android.net.wifi.p2p.nsd.WifiP2pServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,6 +96,8 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             }
         };
         this.intentFilter = new IntentFilter();
+        intentFilter.addAction(context.getString(R.string.));
+
         context.registerReceiver(this.broadcastReceiver, this.intentFilter);
 
     }
@@ -147,7 +150,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     }
 
     @Override
-    public void findService(Map<String,String> nsdInfo) {
+    public ArrayList<String> findService(Map<String,String> nsdInfo) {
 
         final String funcTag = "Find> ";
 
@@ -352,6 +355,9 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                         instanceName,
                         new HashSet<WifiP2pDevice>()
                 );
+                // We haven't encountered this session instance before, so we want to update the
+                // components that care about knowing of new sessions in a pre-session state.
+                Intent broadcastIntent = new Intent()
             }
             WifiNsdManager.this.sessionMap.get(instanceName).add(device);
         }

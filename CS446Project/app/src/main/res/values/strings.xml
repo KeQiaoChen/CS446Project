@@ -201,4 +201,13 @@
     <string name="extra_name_playlist_name">playlistName</string>
     <!--Name of the extra for a boolean value sent in the Intent published by PlaylistManager-->
     <string name="extra_name_success">success</string>
+
+    <!-- Andrew's constants for ConnectionManager + sub-modules -->
+    <string name="create_session_message">&domain_name;create_session_message</string>
+    <string name="join_session_message">&domain_name;join_session_message</string>
+    <string name="find_session_message">&domain_name;find_session_message</string>
+    <string name="find_session_return">&domain_name;find_session_return</string>
+    <string name="session_name_key">&domain_name;session_name_key</string>
+    <string name="available_sessions_key">&domain_name;available_sessions_key</string>
+
 </resources>
