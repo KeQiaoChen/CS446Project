@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import static com.example.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
 
@@ -20,7 +19,7 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
         // Broadcast the session playlist.
         Intent returnPlaylistIntent =
                 new Intent(applicationContext
-                        .getString(R.string.return_session_playlist));
+                        .getString(R.string.give_session_playlist));
         returnPlaylistIntent.putExtra(applicationContext
                 .getString(R.string.session_playlist), HostMusicPlayer.this.playlist);
         LocalBroadcastManager.getInstance(applicationContext)

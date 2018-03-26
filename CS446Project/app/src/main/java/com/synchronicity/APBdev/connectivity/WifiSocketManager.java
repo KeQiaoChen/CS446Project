@@ -112,16 +112,8 @@ public class WifiSocketManager implements SocketManager {
 
                 String action = intent.getAction();
 
-                Log.d("playlist>", action);
 
-
-                if (action.equals(context.getString(R.string.host_music_player_activity_started))) {
-
-                    WifiSocketManager.this.playlist = intent.getParcelableExtra(context.getString(R.string.session_playlist));
-                    Log.d("playlist>", "got the playlist.");
-
-                }
-                else if (action.equals(context.getString(R.string.return_session_playlist))) {
+                if (action.equals(context.getString(R.string.give_session_playlist))) {
 
                     WifiSocketManager.this.playlist = intent.getExtras().getParcelable(context.getString(R.string.session_playlist));
 
@@ -137,7 +129,7 @@ public class WifiSocketManager implements SocketManager {
             }
         };
         this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction(context.getString(R.string.return_session_playlist));
+        this.intentFilter.addAction(context.getString(R.string.give_session_playlist));
         this.intentFilter.addAction(context.getString(R.string.user_chose_session));
 
         this.localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
