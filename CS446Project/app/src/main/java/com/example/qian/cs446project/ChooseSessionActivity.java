@@ -47,15 +47,6 @@ public class ChooseSessionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String selectedSessionName = (String) sessionList.getItemAtPosition(sessionList.getCheckedItemPosition());
-                // Broadcast an Intent to indicate the user has chosen a session to join. Include
-                // the session name in the Intent.
-                Intent chooseSessionBroadcastIntent =
-                        new Intent(applicationContext.getString(R.string.join_session_message));
-                chooseSessionBroadcastIntent.putExtra(
-                        applicationContext.getString(R.string.session_name_key),
-                        selectedSessionName);
-                LocalBroadcastManager.getInstance(ChooseSessionActivity.this)
-                        .sendBroadcast(chooseSessionBroadcastIntent);
                 // Broadcast a targeted Intent to create ParticipantMusicPlayerActivity (screen 3 in
                 // mockup). This Intent contains the name of the session the user has chosen to
                 // join.
