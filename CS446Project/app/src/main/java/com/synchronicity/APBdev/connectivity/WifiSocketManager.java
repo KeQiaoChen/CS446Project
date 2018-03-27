@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
+import android.provider.SyncStateContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -13,12 +14,15 @@ import com.example.qian.cs446project.Playlist;
 import com.example.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
 import com.synchronicity.APBdev.util.StampUtil;
+import com.synchronicity.APBdev.util.TransferUtil;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -196,7 +200,7 @@ public class WifiSocketManager implements SocketManager {
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
                                 Playlist playlist = WifiSocketManager.this.playlist;
                                 WifiSocketManager.this.sendData(playlist);
-
+                                WifiSocketManager.this.sendDataByPath("/storage/emulated/0/Music/01 - Welcome Home.mp3");
 
                             }
                         } catch (IOException ioException) {
@@ -296,22 +300,13 @@ public class WifiSocketManager implements SocketManager {
             byte[] bufferBytes = new byte[WifiSocketManager.Constants.BUFFER_SIZE];
 
             FileInputStream fileInputStream = new FileInputStream(pathToData);
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-            int bytesRead = 0;
-
-            while (bytesRead != -1) {
-                bytesRead = fileInputStream.read(bufferBytes);
-                byteArrayOutputStream.write(bufferBytes, 0, bytesRead);
-            }
 
             String[] pathTokens = pathToData.split("/");
             String fileName = pathTokens[pathTokens.length - 1];
 
-            byte[] dataBytes = byteArrayOutputStream.toByteArray();
-            byte[] headerBytes = this.makeHeader(Constants.SEND_DATA_SIGNAL, dataBytes.length, fileName);
+            byte[] headerBytes = this.makeHeader(Constants.SEND_DATA_SIGNAL, 0, fileName);
 
-            this.distributionStrategy.distributeData(headerBytes, dataBytes);
+            this.distributionStrategy.distributeData(headerBytes, fileInputStream);
         } catch (Exception exception) {
             exception.printStackTrace();
             Log.d(classTag+funcTag,"An exception was thrown in sendDataByPath");
@@ -355,7 +350,9 @@ public class WifiSocketManager implements SocketManager {
                                 int readHeaderPosition = 0;
                                 int readHeaderMax = Constants.HEADER_SIZE;
 
-                                BufferedInputStream bufferedInputStream = new BufferedInputStream(remoteSocket.getInputStream());
+                                InputStream inputStream = remoteSocket.getInputStream();
+
+                                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
 
                                 Log.d(funcTag, "got to before while");
 
@@ -390,7 +387,6 @@ public class WifiSocketManager implements SocketManager {
                                         break;
 
                                     case Constants.SEND_PLAYLIST_SIGNAL:
-                                    case Constants.SEND_DATA_SIGNAL:
 
                                         int dataLength = getDataLength(headerBytes);
                                         byte[] dataBytes = new byte[dataLength];
@@ -425,18 +421,35 @@ public class WifiSocketManager implements SocketManager {
 
                                         }
 
+                                        break;
+
+                                    case Constants.SEND_DATA_SIGNAL:
+
+                                        String path = "/storage/emulated/0/Music/";
+                                        String fileName = "01 - Welcome Home.mp3";
+
+                                        File file = new File(path+fileName);
+                                        file.createNewFile();
+
+                                        TransferUtil.copyFile(inputStream, new FileOutputStream(file));
+
                                         // if signal type is a for a file, then write that file to the temp folder and send and intent
                                         // for others to do something with that?
+
+                                        /*
+
                                         if (signalType == Constants.SEND_DATA_SIGNAL) {
                                             // read the string
                                             String fileName = getFileNameString(headerBytes);
-                                            String filePath = "";
-                                            FileOutputStream fileOutputStream = new FileOutputStream(filePath + fileName);
+                                            String filePath = context.getCacheDir().toString();
+                                            FileOutputStream fileOutputStream = new FileOutputStream(filePath +"/"+ fileName);
                                             fileOutputStream.write(dataBytes);
                                         }
 
+                                        */
+
                                         // close the socket.
-                                        remoteSocket.close();
+                                        // remoteSocket.close();
 
                                         break;
 
@@ -549,15 +562,33 @@ public class WifiSocketManager implements SocketManager {
             byte[] dataNameBytes = dataName.getBytes();
             int dataNameLength = dataNameBytes.length;
 
+            byte[] dataNameLengthBytes = ByteBuffer.allocate(4).putInt(dataNameLength).array();
+
+            for (byte aByte : dataNameLengthBytes) {
+                dataHeader[headerTop] = aByte;
+                headerTop += 1;
+            }
+
+            /*
             for (int i = 0; i < 4; i++) {
                 dataHeader[headerTop] = (byte) (dataNameLength >> i * 8);
                 headerTop += 1;
             }
+            */
+
+            for (byte aByte : dataNameBytes) {
+                dataHeader[headerTop] = aByte;
+                headerTop += 1;
+            }
+
+            /*
 
             for (int i = 0; i < dataNameLength; i++) {
                 dataHeader[headerTop] = dataNameBytes[i];
                 headerTop += 1;
             }
+
+            */
 
         }
 
@@ -638,6 +669,9 @@ public class WifiSocketManager implements SocketManager {
 
         int length = 0;
 
+        return ByteBuffer.wrap(lengthData).getInt();
+
+        /*
         for (int i = 0; i < 4; i++) {
             int tempLength = lengthData[i];
             length = (tempLength << i*8);
@@ -645,6 +679,7 @@ public class WifiSocketManager implements SocketManager {
         }
 
         return length;
+        */
 
     }
 
@@ -677,6 +712,7 @@ public class WifiSocketManager implements SocketManager {
     private interface DistributionStrategy {
         void distributeData(final byte[] headerBytes, final byte[] dataBytes);
         void distributeSignal(final byte[] headerBytes);
+        void distributeData(final byte[] headerBytes, final InputStream inputStream);
     }
 
     /*
@@ -789,6 +825,49 @@ public class WifiSocketManager implements SocketManager {
                             }
                         }
                 ).start();
+            }
+
+        }
+
+        public void distributeData(final byte[] headerBytes, final InputStream inputStream) {
+
+            final String funcTag = "distOther>";
+
+            for (final Socket remoteSocket : WifiSocketManager.this.activeConnectionsSet) {
+
+                Log.d(funcTag,"greedy strat for");
+
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+
+                                    Log.d(funcTag,"greedy before write bytes");
+
+                                    byte[] bufferBytes = new byte[Constants.HEADER_SIZE];
+
+                                    OutputStream outputStream = remoteSocket.getOutputStream();
+                                    outputStream.write(headerBytes);
+
+                                    int length;
+
+                                    while ((length = inputStream.read(bufferBytes)) != -1) {
+                                        outputStream.write(bufferBytes, 0, length);
+                                    }
+
+
+                                    Log.d(funcTag,"greedy after write bytes");
+
+                                }
+                                catch (IOException e) {
+                                    Log.d(classTag+funcTag, "IO exception in thread greedy strat.");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                ).start();
+
             }
 
         }
