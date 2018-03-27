@@ -53,10 +53,10 @@ public class ParticipantMusicPlayer extends SynchronicityMusicPlayer {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
                 participantMusicPlayerReceiver, participantMusicPlayerFilter
         );
-//        createMediaPlayer();
-//        mediaPlayer.setVolume(0, 0);
-//        broadcastIntentWithoutExtras(applicationContext.getString(R.string.other_group_plays),
-//                ParticipantMusicPlayer.this.applicationContext);
+        createMediaPlayer();
+        mediaPlayer.setVolume(0, 0);
+        broadcastIntentWithoutExtras(applicationContext.getString(R.string.other_group_plays),
+                ParticipantMusicPlayer.this.applicationContext);
     }
 
     @Override

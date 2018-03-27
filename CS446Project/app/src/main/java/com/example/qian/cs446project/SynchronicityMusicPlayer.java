@@ -187,7 +187,7 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
                                 LocalBroadcastManager.getInstance(applicationContext)
                                         .sendBroadcast(updateSongProgressIndicatorsInGUIIntent);
                                 ++secondsSinceLastSwitched;
-                                if (secondsSinceLastSwitched == 60) {
+                                if (secondsSinceLastSwitched == 10) {
                                     secondsSinceLastSwitched = 0;
                                     if (getMyTurnToPlay()) {
                                         makeThisGroupMute();
