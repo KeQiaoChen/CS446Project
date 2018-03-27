@@ -200,7 +200,7 @@ public class WifiSocketManager implements SocketManager {
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
                                 Playlist playlist = WifiSocketManager.this.playlist;
                                 WifiSocketManager.this.sendData(playlist);
-                                WifiSocketManager.this.sendDataByPath("/storage/emulated/0/Music/01 - Welcome Home.mp3");
+                                // WifiSocketManager.this.sendDataByPath("/storage/emulated/0/Music/04 - Big Ten.mp3");
 
                             }
                         } catch (IOException ioException) {
@@ -425,10 +425,15 @@ public class WifiSocketManager implements SocketManager {
 
                                     case Constants.SEND_DATA_SIGNAL:
 
-                                        String path = "/storage/emulated/0/Music/";
-                                        String fileName = "01 - Welcome Home.mp3";
+                                        String path = "/storage/emulated/0/data/data/com.example.qian.cs446project/";
+                                        String fileName = "04 - Big Ten.mp3";
 
                                         File file = new File(path+fileName);
+
+                                        File dirs = new File(file.getParent());
+                                        if (!dirs.exists())
+                                            dirs.mkdirs();
+
                                         file.createNewFile();
 
                                         TransferUtil.copyFile(inputStream, new FileOutputStream(file));
