@@ -131,6 +131,12 @@ public class WifiConnectionManager implements ConnectionManager {
                     WifiConnectionManager.this.localBroadcastManager.sendBroadcast(sendIntent);
 
                 }
+                else if (action.equals(context.getString(R.string.send))) {
+
+                    Intent sendIntent = new Intent(context.getString(R.string.receive_stop));
+                    WifiConnectionManager.this.socketManager.sendSignal(WifiSocketManager.Constants.STOP_SIGNAL);
+
+                }
 
 
             }
@@ -144,6 +150,7 @@ public class WifiConnectionManager implements ConnectionManager {
         intentFilter.addAction(context.getString(R.string.send_play));
         intentFilter.addAction(context.getString(R.string.send_pause));
         intentFilter.addAction(context.getString(R.string.send_stop));
+        intentFilter.addAction(context.getString(R.string.send_));
         // LocalBroadcastManager registration for BroadcastReceiver.
         localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
         // Global registration for BroadcastReceiver.

@@ -79,6 +79,7 @@ public class WifiSocketManager implements SocketManager {
         public static final byte SEND_PLAYLIST_SIGNAL = (byte) 4;
         public static final byte SEND_DATA_SIGNAL = 5;
         public static final byte END_SESSION_SIGNAL = 6;
+        public static final byte ALTERNATE_SIGNAL = 7;
         /*
         Indices for data in the header.
          */
@@ -399,6 +400,13 @@ public class WifiSocketManager implements SocketManager {
 
                                         // forwardSignal(headerBytes);
                                         break;
+
+                                    case Constants.ALTERNATE_SIGNAL:
+
+                                        Intent sendIntentAlternate = new Intent(context.getString(R.string.));
+                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentStop);
+                                        break;
+
 
                                     case Constants.END_SESSION_SIGNAL:
                                         forwardSignal(headerBytes);
