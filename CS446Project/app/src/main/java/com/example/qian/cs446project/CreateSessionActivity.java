@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 
 import java.util.ArrayList;
 
@@ -45,6 +46,12 @@ public class CreateSessionActivity extends AppCompatActivity {
                 // Retrieve selected playlist object.
                 Playlist selectedPlaylist = (Playlist) listViewSelectPlaylist.getItemAtPosition(listViewSelectPlaylist.getCheckedItemPosition());
                 PlaylistManager.listAllPlaylistSongs(applicationContext, selectedPlaylist);
+
+                // Retrieve user's choice to either have host and participants take turns playing
+                // the playlist or have all users play the entire playlist simultaneously.
+                RadioButton radioButtonTogglePivot = findViewById(R.id.radioButtonTogglePivot);
+                boolean pivotOn = radioButtonTogglePivot.isChecked();
+
                 // Broadcast an Intent to indicate that the user has created a session.
                 Intent createSessionBroadcastIntent =
                         new Intent(applicationContext.getString(R.string.create_session_message));
@@ -52,15 +59,20 @@ public class CreateSessionActivity extends AppCompatActivity {
                         applicationContext.getString(R.string.session_name_key), sessionName);
                 LocalBroadcastManager.getInstance(CreateSessionActivity.this)
                         .sendBroadcast(createSessionBroadcastIntent);
+
                 // Broadcast a targeted Intent to create HostMusicPlayerActivity (screen 6 in
-                // mockup). This Intent contains the name of the session the user created and the
-                // playlist that the user chose for the session.
+                // mockup). This Intent contains the name of the session the user created, the
+                // playlist that the user chose for the session, and the user's choice of whether to
+                // have hosts and participants take turns playing the playlist or have all users
+                // play the entire playlist simultaneously.
                 Intent createSessionIntent = new Intent(CreateSessionActivity.this,
                         HostMusicPlayerActivity.class);
                 createSessionIntent.putExtra(getApplicationContext()
                         .getString(R.string.created_session_name), sessionName);
                 createSessionIntent.putExtra(getApplicationContext()
                         .getString(R.string.session_playlist), selectedPlaylist);
+                createSessionIntent.putExtra(applicationContext.getString(R.string.is_pivot_on),
+                        pivotOn);
                 startActivity(createSessionIntent);
             }
         });

@@ -16,8 +16,9 @@ public class ParticipantMusicPlayer extends SynchronicityMusicPlayer {
     private IntentFilter participantMusicPlayerFilter;
     private boolean myTurnToPlay = false;
 
-    public ParticipantMusicPlayer(Context applicationContext, Playlist playlist) {
-        super(applicationContext, playlist);
+    public ParticipantMusicPlayer(Context applicationContext, Playlist playlist, boolean isPivotOn)
+    {
+        super(applicationContext, playlist, isPivotOn);
 //        String temporaryDirectory = applicationContext.getCacheDir().toString();
 //        String title;
 //        String filePath;
@@ -54,9 +55,11 @@ public class ParticipantMusicPlayer extends SynchronicityMusicPlayer {
                 participantMusicPlayerReceiver, participantMusicPlayerFilter
         );
         createMediaPlayer();
-        mediaPlayer.setVolume(0, 0);
-        broadcastIntentWithoutExtras(applicationContext.getString(R.string.other_group_plays),
-                ParticipantMusicPlayer.this.applicationContext);
+        if (isPivotOn) {
+            mediaPlayer.setVolume(0, 0);
+            broadcastIntentWithoutExtras(applicationContext.getString(R.string.other_group_plays),
+                    ParticipantMusicPlayer.this.applicationContext);
+        }
     }
 
     @Override
@@ -80,14 +83,18 @@ public class ParticipantMusicPlayer extends SynchronicityMusicPlayer {
         if (!musicPlayerState.isStopped()) {
             super.stop();
             mediaPlayer.stop();
-            makeThisGroupMute();
+            if (pivotOn) {
+                makeThisGroupMute();
+            }
         }
     }
 
     @Override
     void songCompleted(MediaPlayer mediaPlayer) {
         super.songCompleted(mediaPlayer);
-        makeThisGroupMute();
+        if (pivotOn) {
+            makeThisGroupMute();
+        }
     }
 
     @Override
