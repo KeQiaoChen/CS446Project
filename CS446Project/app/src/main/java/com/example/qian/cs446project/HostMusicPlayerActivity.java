@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.synchronicity.APBdev.connectivity.WifiConnectionManager;
 
+import static com.example.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
+
 /**
  * Created by Qian on 2018-02-20.
  */
@@ -44,7 +46,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
         // HostMusicPlayerActivity represents screen 6 in the mockup. A Playlist is passed to
         // HostMusicPlayerActivity to represent the session playlist.
         setPlaylist(playlist);
-        baseConnectionManager.initiateSession("Demo");
+        //baseConnectionManager.initiateSession("Demo");
     }
 
     @Override
@@ -89,11 +91,9 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                     waitMessage.setText(applicationContext.getString(R.string.ready_to_play));
                 } else if (action.equals(applicationContext.getString(R.string.playing_update_GUI)))
                 {
-                    // TODO: Currently, the Music Player on the host's phone notifies the
-                    // Connection Manager that the host has played, paused, or stopped the playlist
-                    // by calling a method in the Connection Manager. We plan to replace these
-                    // method calls with broadcast Intents.
-                    baseConnectionManager.sendSig(WifiConnectionManager.SIG_PLAY_CODE);
+                    // Broadcast an Intent to indicate that the host has pressed the play button.
+                    broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_play),
+                            HostMusicPlayerActivity.this);
                     playPauseButtons.setImageResource(android.R.drawable.ic_media_pause);
                     playPauseButtons.setOnClickListener(new View.OnClickListener() {
 
@@ -105,11 +105,9 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                     });
                 } else if (action.equals(applicationContext.getString(R.string.paused_update_GUI)))
                 {
-                    // TODO: Currently, the Music Player on the host's phone notifies the
-                    // Connection Manager that the host has played, paused, or stopped the playlist
-                    // by calling a method in the Connection Manager. We plan to replace these
-                    // method calls with broadcast Intents.
-                    baseConnectionManager.sendSig(WifiConnectionManager.SIG_PAUSE_CODE);
+                    // Broadcast an Intent to indicate that the host has pressed the pause button.
+                    broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_pause),
+                            HostMusicPlayerActivity.this);
                     enablePlay();
                 }
             }
@@ -119,7 +117,8 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                 hostMusicPlayerReceiver, hostMusicPlayerActivityFilter
         );
         // Broadcast an Intent to indicate that HostMusicPlayerActivity has started.
-        Intent startedIntent = new Intent(applicationContext.getString(R.string
+        Intent startedIntent =
+                new Intent(applicationContext.getString(R.string
                 .host_music_player_activity_started));
         startedIntent.putExtra(applicationContext.getString(R.string.session_playlist), playlist);
         LocalBroadcastManager.getInstance(this).sendBroadcast(startedIntent);
@@ -140,10 +139,9 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
     @Override
     void showPlaylistStopped() {
         super.showPlaylistStopped();
-        // TODO: Currently, the Music Player on the host's phone notifies the Connection Manager
-        // that the host has played, paused, or stopped the playlist by calling a method in the
-        // Connection Manager. We plan to replace these method calls with broadcast Intents.
-        baseConnectionManager.sendSig(WifiConnectionManager.SIG_STOP_CODE);
+        // Broadcast an Intent to indicate the host has pressed the stop button.
+        broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_stop),
+                this);
         enablePlay();
     }
 

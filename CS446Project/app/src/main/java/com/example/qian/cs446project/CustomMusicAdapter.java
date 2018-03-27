@@ -1,6 +1,7 @@
 package com.example.qian.cs446project;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,8 @@ public class CustomMusicAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
+        if(playlist == null) Log.d("getCount>","playlist is null");
+        if(playlist.songs == null) Log.d("getCount>", "songs is null.");
         return playlist.songs.size();
     }
 

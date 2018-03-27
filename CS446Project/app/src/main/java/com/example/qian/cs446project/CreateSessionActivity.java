@@ -1,10 +1,13 @@
 package com.example.qian.cs446project;
 
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,6 +25,7 @@ public class CreateSessionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_session);
+        final Context applicationContext = getApplicationContext();
 
         // Retrieve all app playlists and display them on listview.
         allAppPlaylists = PlaylistManager.listAllAppPlaylists(getApplicationContext());
@@ -40,7 +44,14 @@ public class CreateSessionActivity extends AppCompatActivity {
 
                 // Retrieve selected playlist object.
                 Playlist selectedPlaylist = (Playlist) listViewSelectPlaylist.getItemAtPosition(listViewSelectPlaylist.getCheckedItemPosition());
-                PlaylistManager.listAllPlaylistSongs(getApplicationContext(), selectedPlaylist);
+                PlaylistManager.listAllPlaylistSongs(applicationContext, selectedPlaylist);
+                // Broadcast an Intent to indicate that the user has created a session.
+                Intent createSessionBroadcastIntent =
+                        new Intent(applicationContext.getString(R.string.create_session_message));
+                createSessionBroadcastIntent.putExtra(
+                        applicationContext.getString(R.string.session_name_key), sessionName);
+                LocalBroadcastManager.getInstance(CreateSessionActivity.this)
+                        .sendBroadcast(createSessionBroadcastIntent);
                 // Broadcast a targeted Intent to create HostMusicPlayerActivity (screen 6 in
                 // mockup). This Intent contains the name of the session the user created and the
                 // playlist that the user chose for the session.

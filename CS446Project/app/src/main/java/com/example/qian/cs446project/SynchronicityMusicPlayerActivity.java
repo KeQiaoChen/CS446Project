@@ -10,14 +10,12 @@ import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import com.synchronicity.APBdev.connectivity.BaseConnectionManager;
-import com.synchronicity.APBdev.connectivity.WifiConnectionManager;
 
 import static com.example.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
 import static com.example.qian.cs446project.CS446Utils.formatTime;
@@ -35,17 +33,17 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
     private IntentFilter synchronicityMusicPlayerActivityFilter;
     private BroadcastReceiver synchronicityMusicPlayerActivityReceiver;
     // Andrew's stuff
-    BaseConnectionManager baseConnectionManager;
-    BroadcastReceiver wifiBroadcastReceiver;
+    //BaseConnectionManager baseConnectionManager;
+    //BroadcastReceiver wifiBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_music_player);
         applicationContext = getApplicationContext();
-        baseConnectionManager = new WifiConnectionManager(this, this);
-        wifiBroadcastReceiver = baseConnectionManager.getBroadcastReceiver();
-        registerReceiver(wifiBroadcastReceiver, baseConnectionManager.getIntentFilter());
+//        baseConnectionManager = new WifiConnectionManager(this, this);
+//        wifiBroadcastReceiver = baseConnectionManager.getBroadcastReceiver();
+//        registerReceiver(wifiBroadcastReceiver, baseConnectionManager.getIntentFilter());
     }
 
     @Override
@@ -150,6 +148,7 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
                 new CustomMusicAdapter(this, R.layout.song_in_gui, playlist);
         ListView listView = findViewById(R.id.listViewSonglist);
         listView.setAdapter(customMusicAdapter);
+        Log.d("setPlaylist>", "first song is called " + playlist.songs.get(0).getTitle());
     }
 
     private void unboldSongMetadata(int songIndex) {
@@ -272,9 +271,9 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         customMusicAdapter = null;
-        baseConnectionManager.cleanUp();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiBroadcastReceiver);
-        wifiBroadcastReceiver = null;
+//        baseConnectionManager.cleanUp();
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiBroadcastReceiver);
+//        wifiBroadcastReceiver = null;
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(synchronicityMusicPlayerActivityReceiver);
         synchronicityMusicPlayerActivityFilter = null;
