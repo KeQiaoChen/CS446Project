@@ -375,10 +375,29 @@ public class WifiSocketManager implements SocketManager {
                                 switch (signalType) {
 
                                     case Constants.NULL_SIGNAL:
+
+                                        break;
+
                                     case Constants.PLAY_SIGNAL:
+
+                                        Intent sendIntentPlay = new Intent(context.getString(R.string.receive_play));
+                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentPlay);
+                                        break;
+
                                     case Constants.PAUSE_SIGNAL:
+
+                                        Intent sendIntentPause = new Intent(context.getString(R.string.receive_pause));
+                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentPause);
+
+
+                                        break;
+
                                     case Constants.STOP_SIGNAL:
-                                        forwardSignal(headerBytes);
+
+                                        Intent sendIntentStop = new Intent(context.getString(R.string.receive_stop));
+                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentStop);
+
+                                        // forwardSignal(headerBytes);
                                         break;
 
                                     case Constants.END_SESSION_SIGNAL:

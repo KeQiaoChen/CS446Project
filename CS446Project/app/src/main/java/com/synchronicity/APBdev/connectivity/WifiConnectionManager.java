@@ -110,6 +110,29 @@ public class WifiConnectionManager implements ConnectionManager {
                     WifiConnectionManager.this.findSessions();
 
                 }
+                else if (action.equals((context.getString(R.string.send_play)))) {
+
+                    Intent sendIntent = new Intent(context.getString(R.string.receive_play));
+                    WifiConnectionManager.this.socketManager.sendSignal(WifiSocketManager.Constants.PLAY_SIGNAL);
+                    WifiConnectionManager.this.localBroadcastManager.sendBroadcast(sendIntent);
+
+                }
+                else if (action.equals((context.getString(R.string.send_pause)))) {
+
+                    Intent sendIntent = new Intent(context.getString(R.string.receive_pause));
+                    WifiConnectionManager.this.socketManager.sendSignal(WifiSocketManager.Constants.PAUSE_SIGNAL);
+                    WifiConnectionManager.this.localBroadcastManager.sendBroadcast(sendIntent);
+
+                }
+                else if (action.equals((context.getString(R.string.send_stop)))) {
+
+                    Intent sendIntent = new Intent(context.getString(R.string.receive_stop));
+                    WifiConnectionManager.this.socketManager.sendSignal(WifiSocketManager.Constants.STOP_SIGNAL);
+                    WifiConnectionManager.this.localBroadcastManager.sendBroadcast(sendIntent);
+
+                }
+
+
             }
         };
         this.intentFilter = new IntentFilter();
@@ -117,6 +140,10 @@ public class WifiConnectionManager implements ConnectionManager {
         intentFilter.addAction(context.getString(R.string.create_session_message));
         intentFilter.addAction(context.getString(R.string.join_session_message));
         intentFilter.addAction(context.getString(R.string.find_session_message));
+        // Play pause stop intent filers
+        intentFilter.addAction(context.getString(R.string.send_play));
+        intentFilter.addAction(context.getString(R.string.send_pause));
+        intentFilter.addAction(context.getString(R.string.send_stop));
         // LocalBroadcastManager registration for BroadcastReceiver.
         localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
         // Global registration for BroadcastReceiver.
