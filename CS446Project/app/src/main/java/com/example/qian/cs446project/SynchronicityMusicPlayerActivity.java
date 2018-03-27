@@ -10,6 +10,7 @@ import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -147,6 +148,7 @@ public class SynchronicityMusicPlayerActivity extends AppCompatActivity
                 new CustomMusicAdapter(this, R.layout.song_in_gui, playlist);
         ListView listView = findViewById(R.id.listViewSonglist);
         listView.setAdapter(customMusicAdapter);
+        Log.d("setPlaylist>", "first song is called " + playlist.songs.get(0).getTitle());
     }
 
     private void unboldSongMetadata(int songIndex) {

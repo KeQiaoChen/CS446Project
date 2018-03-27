@@ -135,6 +135,10 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                                         InetAddress groupOwnerAddress = info.groupOwnerAddress;
 
                                         if (info.groupFormed && !info.isGroupOwner) {
+
+                                            Log.d("socketInitIntent>", "about to establish a socket");
+
+
                                             WifiNsdManager.this.socketManager.connectToServer(groupOwnerAddress.getHostAddress(), WifiNsdManager.this.port );
                                         }
 
@@ -151,7 +155,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
 
         };
         this.intentFilter = new IntentFilter();
-        // this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
         this.localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
         this.context.registerReceiver(this.broadcastReceiver, this.intentFilter);
@@ -281,6 +285,8 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
 
     @Override
     public void connectToService(Map<String,String> nsdInfo) {
+
+        Log.d("con2serv>", "start");
 
         String instanceName = nsdInfo.get(WifiNsdManager.NSD_INFO_INSTANCE_NAME_ID);
         // this.currentSession = instanceName;
@@ -442,6 +448,8 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     private void establishConnection(WifiP2pDevice remoteDevice) {
 
         final String funcTag = "eConn> ";
+
+         Log.d(funcTag, "start");
 
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = remoteDevice.deviceAddress;

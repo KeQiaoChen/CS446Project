@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,7 +72,7 @@ public class WifiSocketManager implements SocketManager {
         public static final byte PLAY_SIGNAL = 1;
         public static final byte PAUSE_SIGNAL = 2;
         public static final byte STOP_SIGNAL = 3;
-        public static final byte SEND_PLAYLIST_SIGNAL = 4;
+        public static final byte SEND_PLAYLIST_SIGNAL = (byte) 4;
         public static final byte SEND_DATA_SIGNAL = 5;
         public static final byte END_SESSION_SIGNAL = 6;
         /*
@@ -161,6 +162,8 @@ public class WifiSocketManager implements SocketManager {
 
         final String funcTag = "initServ> ";
 
+        Log.d(funcTag, "init serv func start");
+
         /*
         On initialization of a server socket, bind it to an address and port. This could throw
          */
@@ -180,21 +183,33 @@ public class WifiSocketManager implements SocketManager {
                 new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(funcTag, "init serv thread start");
+
                         try {
                             while(!WifiSocketManager.this.serverSocket.isClosed()) {
+
+                                Log.d(funcTag, "init serv while");
+
+
                                 Socket remoteSocket = WifiSocketManager.this.serverSocket.accept();
                                 WifiSocketManager.this.activeConnectionsSet.add(remoteSocket);
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
                                 Playlist playlist = WifiSocketManager.this.playlist;
                                 WifiSocketManager.this.sendData(playlist);
+
+
                             }
                         } catch (IOException ioException) {
                             Log.d(classTag+funcTag, "There was an IO exception.");
                             ioException.printStackTrace();
                         }
+                        Log.d(funcTag, "init serv thread end");
+
                     }
                 }
-        );
+        ).start();
+
+        Log.d(funcTag, "init serv func end");
 
     }
 
@@ -218,10 +233,16 @@ public class WifiSocketManager implements SocketManager {
                         Form the connection to the remote socket. This allows two way communication between this
                         device and the other device.
                          */
+                        Log.d("Con2Serv>", "Thread start.");
+
+
                         Socket remoteSocket = formServerConnection(hostName, hostPort);
                         WifiSocketManager.this.serverInfoSet.add(new ServerInfo(hostName, hostPort));
                         WifiSocketManager.this.activeConnectionsSet.add(remoteSocket);
                         WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
+
+                        Log.d("Con2Serv>", "Thread end.");
+
 
                     }
                 }
@@ -247,9 +268,18 @@ public class WifiSocketManager implements SocketManager {
     @Override
     public void sendData(Parcelable parcelable) {
 
+        String funcTag = "sendData>";
+
+        Log.d(funcTag,"start");
+
         byte[] dataBytes = ParcelableUtil.marshall(parcelable);
+
+        Log.d("dataBytes>", "Length of dataBytes: "+Integer.toString(dataBytes.length));
+
         byte[] headerBytes = this.makeHeader(Constants.SEND_PLAYLIST_SIGNAL, dataBytes.length, null);
         this.distributionStrategy.distributeData(headerBytes, dataBytes);
+
+        Log.d(funcTag,"end");
 
     }
 
@@ -316,6 +346,9 @@ public class WifiSocketManager implements SocketManager {
                     public void run() {
                         while (!remoteSocket.isClosed()) {
 
+                            Log.d(funcTag, "Thread start.");
+
+
                             try {
                                 // Read a number of bytes no bigger than the size of the header.
                                 byte[] headerBytes = new byte[Constants.HEADER_SIZE];
@@ -323,14 +356,24 @@ public class WifiSocketManager implements SocketManager {
                                 int readHeaderMax = Constants.HEADER_SIZE;
 
                                 BufferedInputStream bufferedInputStream = new BufferedInputStream(remoteSocket.getInputStream());
+
+                                Log.d(funcTag, "got to before while");
+
                                 while (readHeaderMax - readHeaderPosition != 0) {
 
+                                    Log.d(funcTag, "readHeaderPosition value: " + Integer.toString(readHeaderPosition));
+
                                     readHeaderPosition += bufferedInputStream.read(headerBytes, readHeaderPosition, readHeaderMax - readHeaderPosition);
+                                    Log.d(funcTag, "readHeaderPosition value: " + Integer.toString(readHeaderPosition));
 
                                 }
 
+                                Log.d(funcTag, "got to after while");
+
                                 // Based on the header and the data, do something:
                                 byte signalType = WifiSocketManager.this.getHeaderSignalType(headerBytes);
+
+                                Log.d(funcTag, "Signal Type: "+Byte.toString(signalType));
 
                                 switch (signalType) {
 
@@ -364,7 +407,7 @@ public class WifiSocketManager implements SocketManager {
 
                                         // If signal type is for a playlist, then un-marshal and send in an intent for others to handl.
                                         if (signalType == Constants.SEND_PLAYLIST_SIGNAL) {
-                                            Parcelable parcelable = ParcelableUtil.unmarshall(dataBytes, Playlist.CREATOR);
+                                            Playlist parcelable = ParcelableUtil.unmarshall(dataBytes, Playlist.CREATOR);
 
                                             // Send and intent here.
                                             if (parcelable == null) {
@@ -403,7 +446,7 @@ public class WifiSocketManager implements SocketManager {
                                 }
                             } catch (Exception exception) {
                                 exception.printStackTrace();
-                                Log.d(classTag+funcTag,"an exception happened in the handler. It's a bit of a mess so we have to do some work to find the problem");
+                                Log.d("exeption>","an exception happened in the handler. It's a bit of a mess so we have to do some work to find the problem");
                             }
 
                         }
@@ -443,6 +486,9 @@ public class WifiSocketManager implements SocketManager {
 
         final String funcTag = "formConn> ";
 
+        Log.d("formConn>", "func start.");
+
+
         /*
         Attempt to connect to the ServerSocket on the device which we wish to communicate.
          */
@@ -455,6 +501,10 @@ public class WifiSocketManager implements SocketManager {
             Log.d(classTag+funcTag,"There was an IO exception.");
             ioException.printStackTrace();
         }
+
+        Log.d("formConn>", "func end.");
+
+
         return remoteSocket;
     }
 
@@ -480,10 +530,18 @@ public class WifiSocketManager implements SocketManager {
         }
 
         // Next we need to get the data length.
+        byte[] lengthBytes = ByteBuffer.allocate(4).putInt(dataLength).array();
+        for (byte aByte : lengthBytes) {
+            dataHeader[headerTop] = aByte;
+            headerTop += 1;
+        }
+
+        /*
         for (int i = 0; i < 4; i++) {
             dataHeader[headerTop] = (byte) (dataLength >> i*8);
             headerTop += 1;
         }
+        */
 
         // Next, if string is not null, then add the length of the string, as well as the string.
         if (dataName != null) {
@@ -511,7 +569,7 @@ public class WifiSocketManager implements SocketManager {
     Gets the header signal type;
      */
     private byte getHeaderSignalType(byte[] headerBytes) {
-        return headerBytes[1];
+        return headerBytes[0];
     }
 
     /*
@@ -548,15 +606,22 @@ public class WifiSocketManager implements SocketManager {
             lengthData[i] = headerBytes[Constants.DATA_LENGTH_INDEX + i];
         }
 
+        return ByteBuffer.wrap(lengthData).getInt();
+
+        /*
+
         int length = 0;
+        int tempLength = 0;
 
         for (int i = 0; i < 4; i++) {
-            int tempLength = lengthData[i];
-            length = (tempLength << i*8);
+            tempLength = lengthData[i];
+            tempLength = (tempLength << i*8);
             length += tempLength;
         }
 
         return length;
+
+        */
 
     }
 
@@ -636,6 +701,8 @@ public class WifiSocketManager implements SocketManager {
             sender is offering, then the receiver terminates the socket connection and the thread
             should terminate and return immediately.
              */
+
+            /*
             for (ServerInfo serverInfo : serverInfoSet) {
                 try {
                     Socket remoteSocket = WifiSocketManager.this.formServerConnection(serverInfo.serverName, serverInfo.serverPort);
@@ -659,6 +726,39 @@ public class WifiSocketManager implements SocketManager {
                     Log.d(classTag+funcTag,"IO exception in greedy distribution");
                     ioException.printStackTrace();
                 }
+            }
+            */
+
+            for (final Socket remoteSocket : WifiSocketManager.this.activeConnectionsSet) {
+
+                Log.d(funcTag,"greedy strat for");
+
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+
+                                    Log.d(funcTag,"greedy before write bytes");
+
+                                    int headerSize = headerBytes.length;
+                                    int encodedSize = getDataLength(headerBytes);
+
+                                    OutputStream outputStream = remoteSocket.getOutputStream();
+                                    outputStream.write(headerBytes);
+                                    outputStream.write(dataBytes);
+
+                                    Log.d(funcTag,"greedy after write bytes");
+
+                                }
+                                catch (IOException e) {
+                                    Log.d(classTag+funcTag, "IO exception in thread greedy strat.");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                ).start();
+
             }
 
         }
