@@ -204,7 +204,9 @@ public class WifiSocketManager implements SocketManager {
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
                                 Playlist playlist = WifiSocketManager.this.playlist;
                                 WifiSocketManager.this.sendData(playlist);
-                                WifiSocketManager.this.sendSignal(Constants.ALTERNATE_SIGNAL);
+                                if (WifiSocketManager.this.pivotOn) {
+                                    WifiSocketManager.this.sendSignal(Constants.ALTERNATE_SIGNAL);
+                                }
                                 // WifiSocketManager.this.sendDataByPath("/storage/emulated/0/Music/04 - Big Ten.mp3");
 
                             }
