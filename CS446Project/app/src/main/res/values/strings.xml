@@ -14,6 +14,7 @@
     <string name="leave_session">Leave Session</string>
     <string name="exit">Exit</string>
     <string name="join">Join</string>
+    <string name="alternate_playback">Alternate playback between host and participants?</string>
     <!--Host's session playlist GUI (screen 6 of mockup) shows this string after all participants
     have finished downloading the song in the session playlist.-->
     <string name="ready_to_play">Ready to play</string>
@@ -96,9 +97,13 @@
     <string name="create_playlist">Create Playlist</string>
     <string name="enter_playlist_name">Enter Playlist Name</string>
     <!--Name of an extra in the targeted Intent that CreateSessionActivity sends to
-    ParticipantMusicPlayerActivity. This extra is a String that is the name of the session the
-    user created.-->
+    HostMusicPlayerActivity. This extra is a String that is the name of the session the user
+    created.-->
     <string name="created_session_name">created_session_name</string>
+    <!--Name of an extra in the targeted Intent that CreateSessionActivity sends to
+    HostMusicPlayerActivity. This extra is a boolean that is true if the user has chosen to have the
+    host and participants alternate playback, and false otherwise.-->
+    <string name="is_pivot_on">is_pivot_on</string>
     <!--Name of the Intent HostMusicPlayer broadcasts to indicate that a song in the session
     playlist has finished-->
     <string name="song_completed">&domain_name;song_completed</string>
@@ -198,6 +203,7 @@
     <string name="extra_name_playlist_name">playlistName</string>
     <!--Name of the extra for a boolean value sent in the Intent published by PlaylistManager-->
     <string name="extra_name_success">success</string>
+    <string name="pivot_choice_ready">pivot_choice_ready</string>
 
     <!-- Andrew's constants for ConnectionManager + sub-modules -->
     <string name="create_session_message">&domain_name;create_session_message</string>

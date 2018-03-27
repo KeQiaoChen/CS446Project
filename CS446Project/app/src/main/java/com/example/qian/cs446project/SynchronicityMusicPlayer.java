@@ -30,10 +30,13 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
     private BroadcastReceiver synchronicityMusicPlayerReceiver;
     private int secondsSinceLastSwitched = 0;
     private boolean myTurnToPlay = true;
+    boolean pivotOn;
 
-    public SynchronicityMusicPlayer(final Context applicationContext, Playlist playlist) {
+    public SynchronicityMusicPlayer(final Context applicationContext, Playlist playlist,
+                                    boolean pivotOn) {
         this.applicationContext = applicationContext;
         this.playlist = playlist;
+        this.pivotOn = pivotOn;
         synchronicityMusicPlayerFilter = new IntentFilter();
         // Play the playlist on the user's phone when the user presses the play button (in the
         // case that the user is the host) or when the user's phone receives the play signal (in
@@ -186,13 +189,15 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
                                 // updated in the GUI.
                                 LocalBroadcastManager.getInstance(applicationContext)
                                         .sendBroadcast(updateSongProgressIndicatorsInGUIIntent);
-                                ++secondsSinceLastSwitched;
-                                if (secondsSinceLastSwitched == 10) {
-                                    secondsSinceLastSwitched = 0;
-                                    if (getMyTurnToPlay()) {
-                                        makeThisGroupMute();
-                                    } else {
-                                        makeThisGroupPlay();
+                                if (pivotOn) {
+                                    ++secondsSinceLastSwitched;
+                                    if (secondsSinceLastSwitched == 10) {
+                                        secondsSinceLastSwitched = 0;
+                                        if (getMyTurnToPlay()) {
+                                            makeThisGroupMute();
+                                        } else {
+                                            makeThisGroupPlay();
+                                        }
                                     }
                                 }
                             } else if (playedDuringThisThread && musicPlayerState.isStopped()) {

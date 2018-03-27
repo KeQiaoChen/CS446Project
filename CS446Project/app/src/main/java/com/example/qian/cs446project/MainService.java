@@ -53,15 +53,21 @@ public class MainService extends Service {
                         .host_music_player_activity_started))) {
                     Playlist playlist = intent.getParcelableExtra(
                             applicationContext.getString(R.string.session_playlist));
+                    boolean pivotOn = intent.getBooleanExtra(
+                            applicationContext.getString(R.string.is_pivot_on), true);
                     hostMusicPlayer =
-                            new HostMusicPlayer(MainService.this, playlist);
+                            new HostMusicPlayer(MainService.this, playlist,
+                                    pivotOn);
                 } else if (action
                         .equals(applicationContext.getString(R.string
                         .participant_music_player_activity_started))) {
                     Playlist playlist = intent.getParcelableExtra(
                             applicationContext.getString(R.string.session_playlist));
+                    boolean isPivotOn = intent.getBooleanExtra(
+                            applicationContext.getString(R.string.is_pivot_on), true);
                     participantMusicPlayer =
-                            new ParticipantMusicPlayer(MainService.this, playlist);
+                            new ParticipantMusicPlayer(MainService.this, playlist,
+                                    isPivotOn);
                 }
             }
 

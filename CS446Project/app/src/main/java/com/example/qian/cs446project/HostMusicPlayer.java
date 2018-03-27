@@ -14,8 +14,8 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
     private BroadcastReceiver hostMusicPlayerReceiver;
     private IntentFilter hostMusicPlayerFilter;
 
-    public HostMusicPlayer(final Context applicationContext, Playlist playlist) {
-        super(applicationContext, playlist);
+    public HostMusicPlayer(final Context applicationContext, Playlist playlist, boolean pivotOn) {
+        super(applicationContext, playlist, pivotOn);
         // Broadcast the session playlist.
         Intent returnPlaylistIntent =
                 new Intent(applicationContext
