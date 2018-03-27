@@ -49,6 +49,7 @@ public class WifiSocketManager implements SocketManager {
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
+    private boolean pivotOn;
 
 
     /*
@@ -111,6 +112,7 @@ public class WifiSocketManager implements SocketManager {
             Log.d(classTag,"An IO exception was thrown in the SocketManager constructor.");
         }
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        this.pivotOn = false;
         // BroadcastReceive creation and registration.
         this.broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -124,6 +126,7 @@ public class WifiSocketManager implements SocketManager {
 
                     Log.d("playlist>", "!");
                     WifiSocketManager.this.playlist = intent.getExtras().getParcelable(context.getString(R.string.session_playlist));
+                    WifiSocketManager.this.pivotOn = intent.getBooleanExtra(context.getString(R.string.is_pivot_on), true);
 
                 }
 
@@ -201,6 +204,7 @@ public class WifiSocketManager implements SocketManager {
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
                                 Playlist playlist = WifiSocketManager.this.playlist;
                                 WifiSocketManager.this.sendData(playlist);
+                                WifiSocketManager.this.sendSignal(Constants.ALTERNATE_SIGNAL);
                                 // WifiSocketManager.this.sendDataByPath("/storage/emulated/0/Music/04 - Big Ten.mp3");
 
                             }
@@ -403,8 +407,8 @@ public class WifiSocketManager implements SocketManager {
 
                                     case Constants.ALTERNATE_SIGNAL:
 
-                                        Intent sendIntentAlternate = new Intent(context.getString(R.string.));
-                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentStop);
+                                        Intent sendIntentAlternate = new Intent(context.getString(R.string.pivot_choice_ready));
+                                        WifiSocketManager.this.localBroadcastManager.sendBroadcast(sendIntentAlternate);
                                         break;
 
 
