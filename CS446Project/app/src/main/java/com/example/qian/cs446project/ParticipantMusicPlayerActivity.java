@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
 
     private Playlist playlist;
+    private Playlist musicFiles;
     private Context applicationContext;
     private TextView waitMessage;
     private IntentFilter participantIntentFilter;
@@ -34,6 +35,9 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
         applicationContext = getApplicationContext();
         // TODO: Since our application cannot yet send files from one device to another,
         // participants just use the first of their personal playlists.
+        ArrayList<Playlist> allPlaylists = PlaylistManager.listAllAppPlaylists(applicationContext);
+        musicFiles = allPlaylists.get(0);
+        PlaylistManager.listAllPlaylistSongs(applicationContext, playlist);
 //        ArrayList<Playlist> allPlaylists = PlaylistManager.listAllAppPlaylists(applicationContext);
 //        if (allPlaylists == null || allPlaylists.size() == 0) {
 //            Toast errorToast = Toast.makeText(applicationContext, "Participant failed to retrieve session playlist.",
@@ -111,7 +115,7 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
                             new Intent(applicationContext.getString(R.string
                             .participant_music_player_activity_started));
                     startedIntent.putExtra(applicationContext.getString(R.string.session_playlist),
-                            playlist);
+                            musicFiles);
                     LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
                             .sendBroadcast(startedIntent);
                 }
