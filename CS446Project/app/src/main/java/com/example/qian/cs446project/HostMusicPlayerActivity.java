@@ -122,7 +122,7 @@ public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
                 .host_music_player_activity_started));
         startedIntent.putExtra(applicationContext.getString(R.string.session_playlist), playlist);
         boolean pivotOn = getIntent().getBooleanExtra(
-                applicationContext.getString(R.string.is_pivot_on), true);
+                applicationContext.getString(R.string.is_pivot_on), false);
         startedIntent.putExtra(applicationContext.getString(R.string.is_pivot_on), pivotOn);
         LocalBroadcastManager.getInstance(this).sendBroadcast(startedIntent);
     }

@@ -126,7 +126,7 @@ public class WifiSocketManager implements SocketManager {
 
                     Log.d("playlist>", "!");
                     WifiSocketManager.this.playlist = intent.getExtras().getParcelable(context.getString(R.string.session_playlist));
-                    WifiSocketManager.this.pivotOn = intent.getBooleanExtra(context.getString(R.string.is_pivot_on), true);
+                    WifiSocketManager.this.pivotOn = intent.getBooleanExtra(context.getString(R.string.is_pivot_on), false);
 
                 }
 
