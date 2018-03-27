@@ -37,15 +37,19 @@ public class ChooseSessionActivity extends AppCompatActivity {
         final ListView sessionList = findViewById(R.id.listViewSessionsList);
         waitMessage = findViewById(R.id.textViewWaitForSessionNames);
         applicationContext = getApplicationContext();
-        sessionNames.add("Demo");
+        //sessionNames.add("Demo");
         sessionListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, sessionNames);
         sessionList.setAdapter(sessionListAdapter);
-        waitMessage.setVisibility(View.INVISIBLE);
+        //waitMessage.setVisibility(View.INVISIBLE);
         Button buttonJoin = findViewById(R.id.buttonJoin);
         buttonJoin.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 String selectedSessionName = (String) sessionList.getItemAtPosition(sessionList.getCheckedItemPosition());
+                // Broadcast a targeted Intent to create ParticipantMusicPlayerActivity (screen 3 in
+                // mockup). This Intent contains the name of the session the user has chosen to
+                // join.
                 Intent chooseSessionIntent = new Intent(ChooseSessionActivity.this,
                                 ParticipantMusicPlayerActivity.class);
                 chooseSessionIntent
@@ -53,28 +57,25 @@ public class ChooseSessionActivity extends AppCompatActivity {
                                 selectedSessionName);
                 startActivity(chooseSessionIntent);
             }
+
         });
-        // Broadcast an Intent to tell the app that the user is looking for a session to join.
-        broadcastIntentWithoutExtras(
-                applicationContext.getString(R.string.user_looking_to_join_session),
-                this);
     }
 
     protected void onStart() {
         super.onStart();
         chooseSessionIntentFilter = new IntentFilter();
-        // When the list of names of all sessions the user can join becomes available,
-        // ChooseSessionActivity populates its ListView with those session names.
+        // Whenever a new session is found, display the session name in the list of available
+        // sessions so the user can choose to join it.
         chooseSessionIntentFilter
-                .addAction(applicationContext.getString(R.string.session_list_ready));
+                .addAction(applicationContext.getString(R.string.find_session_return));
         chooseSessionActivityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                if (action.equals(applicationContext.getString(R.string.session_list_ready))) {
+                if (action.equals(applicationContext.getString(R.string.find_session_return))) {
                     sessionNames.clear();
-                    sessionNames.addAll(intent.getStringArrayListExtra(applicationContext
-                            .getString(R.string.session_names_list)));
+                    sessionNames.add(intent.getStringExtra(applicationContext.getString(R.string
+                            .available_sessions_key)));
                     sessionListAdapter.notifyDataSetChanged();
                     waitMessage.setVisibility(View.INVISIBLE);
                 }
@@ -82,8 +83,9 @@ public class ChooseSessionActivity extends AppCompatActivity {
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(chooseSessionActivityReceiver,
                 chooseSessionIntentFilter);
-        broadcastIntentWithoutExtras(applicationContext.getString(R.string.find_sessions),
-                this);
+        // Broadcast an Intent to tell the app that the user is looking for a session to join.
+        broadcastIntentWithoutExtras(
+                applicationContext.getString(R.string.find_session_message),this);
     }
 
     protected void onStop() {
