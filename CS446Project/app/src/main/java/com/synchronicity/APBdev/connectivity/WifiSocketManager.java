@@ -112,17 +112,12 @@ public class WifiSocketManager implements SocketManager {
 
                 String action = intent.getAction();
 
+                Log.d("intent>",action);
 
                 if (action.equals(context.getString(R.string.give_session_playlist))) {
 
+                    Log.d("playlist>", "!");
                     WifiSocketManager.this.playlist = intent.getExtras().getParcelable(context.getString(R.string.session_playlist));
-
-                }
-                else if (action.equals(context.getString(R.string.user_chose_session))) {
-
-                    Intent broadcastIntent = new Intent(context.getString(R.string.playlist_ready));
-                    broadcastIntent.putExtra(context.getString(R.string.session_playlist), WifiSocketManager.this.playlist);
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
 
                 }
 
@@ -190,6 +185,8 @@ public class WifiSocketManager implements SocketManager {
                                 Socket remoteSocket = WifiSocketManager.this.serverSocket.accept();
                                 WifiSocketManager.this.activeConnectionsSet.add(remoteSocket);
                                 WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
+                                Playlist playlist = WifiSocketManager.this.playlist;
+                                WifiSocketManager.this.sendData(playlist);
                             }
                         } catch (IOException ioException) {
                             Log.d(classTag+funcTag, "There was an IO exception.");
@@ -209,18 +206,26 @@ public class WifiSocketManager implements SocketManager {
     @Override
     public void connectToServer(final String hostName, final int hostPort) {
 
-        /*
-        Form the connection to the remote socket. This allows two way communication between this
-        device and the other device.
-         */
-        Socket remoteSocket = formServerConnection(hostName, hostPort);
-        this.serverInfoSet.add(new ServerInfo(hostName, hostPort));
-        this.activeConnectionsSet.add(remoteSocket);
-        this.initDataReceiveHandler(remoteSocket);
+        final String funcTag = "Con2Serv>";
 
-        /*
-        Form another temporary connection and
-         */
+        Log.d(classTag+funcTag,"Connected to server.");
+
+        new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        /*
+                        Form the connection to the remote socket. This allows two way communication between this
+                        device and the other device.
+                         */
+                        Socket remoteSocket = formServerConnection(hostName, hostPort);
+                        WifiSocketManager.this.serverInfoSet.add(new ServerInfo(hostName, hostPort));
+                        WifiSocketManager.this.activeConnectionsSet.add(remoteSocket);
+                        WifiSocketManager.this.initDataReceiveHandler(remoteSocket);
+
+                    }
+                }
+        ).start();
 
     }
 
@@ -355,12 +360,26 @@ public class WifiSocketManager implements SocketManager {
 
                                         }
 
-                                        forwardData(headerBytes, dataBytes);
+                                        // forwardData(headerBytes, dataBytes);
 
                                         // If signal type is for a playlist, then un-marshal and send in an intent for others to handl.
                                         if (signalType == Constants.SEND_PLAYLIST_SIGNAL) {
                                             Parcelable parcelable = ParcelableUtil.unmarshall(dataBytes, Playlist.CREATOR);
+
                                             // Send and intent here.
+                                            if (parcelable == null) {
+                                                Log.d("InitReceiveDebug>","parcelable is null" );
+                                            }
+                                            else {
+                                                Log.d("InitReceiveDebug>", "parcelable is not null");
+                                            }
+
+                                            Context context = WifiSocketManager.this.context;
+                                            Intent intent = new Intent(context.getString(R.string.playlist_ready));
+                                            intent.putExtra(context.getString(R.string.session_playlist), parcelable);
+                                            WifiSocketManager.this.localBroadcastManager.sendBroadcast(intent);
+
+
                                         }
 
                                         // if signal type is a for a file, then write that file to the temp folder and send and intent

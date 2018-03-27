@@ -107,19 +107,31 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
             @Override
             public void onReceive(Context context, Intent intent) {
 
+
                 String action = intent.getAction();
 
+                Log.d("socketInitIntent>", action);
+
                 if (action.equals(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)) {
+
+                    Log.d("socketInitIntent>", "Connection chanaged start.");
 
                     NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
                     if (networkInfo.isConnected()) {
+
+                        Log.d("socketInitIntent>", "After networkInfo.isConnected().");
+
 
                         WifiNsdManager.this.wifiP2pManager.requestConnectionInfo(
                                 WifiNsdManager.this.wifiP2pChannel,
                                 new WifiP2pManager.ConnectionInfoListener() {
                                     @Override
                                     public void onConnectionInfoAvailable(WifiP2pInfo info) {
+
+                                        Log.d("socketInitIntent>", "Connection info available");
+
+
                                         InetAddress groupOwnerAddress = info.groupOwnerAddress;
 
                                         if (info.groupFormed && !info.isGroupOwner) {
@@ -134,11 +146,12 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
                     }
 
                 }
-
             }
+
+
         };
         this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        // this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
         this.localBroadcastManager.registerReceiver(this.broadcastReceiver, this.intentFilter);
         this.context.registerReceiver(this.broadcastReceiver, this.intentFilter);
