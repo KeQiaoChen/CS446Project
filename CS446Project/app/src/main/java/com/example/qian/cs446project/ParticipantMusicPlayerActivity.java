@@ -124,11 +124,11 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
         // Broadcast an Intent to tell other components that the user has joined a certain session
         // and is requesting the session playlist. This Intent contains the session name.
         Intent participantJoinedSessionIntent =
-                new Intent(applicationContext.getString(R.string.user_chose_session));
+                new Intent(applicationContext.getString(R.string.join_session_message));
         String sessionName =
                 getIntent().getStringExtra(applicationContext.getString(R.string.session_name));
         participantJoinedSessionIntent
-                .putExtra(applicationContext.getString(R.string.name_of_chosen_session),
+                .putExtra(applicationContext.getString(R.string.session_name_key),
                         sessionName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(participantJoinedSessionIntent);
     }
