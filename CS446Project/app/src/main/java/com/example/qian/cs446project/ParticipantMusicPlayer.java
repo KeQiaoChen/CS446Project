@@ -18,7 +18,7 @@ public class ParticipantMusicPlayer extends SynchronicityMusicPlayer {
 
     public ParticipantMusicPlayer(Context applicationContext, Playlist playlist, boolean isPivotOn)
     {
-        super(applicationContext, playlist, isPivotOn);
+        super(applicationContext, playlist, false);
 //        String temporaryDirectory = applicationContext.getCacheDir().toString();
 //        String title;
 //        String filePath;

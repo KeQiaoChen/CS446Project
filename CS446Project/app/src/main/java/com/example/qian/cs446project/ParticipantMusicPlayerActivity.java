@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.example.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
+
 /**
  * Created by Qian on 2018-02-21.
  */
@@ -24,7 +26,6 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
     private TextView waitMessage;
     private IntentFilter participantIntentFilter;
     private BroadcastReceiver participantMusicPlayerReceiver;
-    private boolean receivedPivotChoice = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,32 +109,20 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
                             .getString(R.string.session_playlist));
                     setPlaylist(playlist);
                     waitMessage.setVisibility(View.INVISIBLE);
-                    if (receivedPivotChoice) {
-                        // Broadcast an Intent to indicate that ParticipantMusicPlayerActivity has
-                        // started and has the playlist.
-                        Intent startedIntent =
-                                new Intent(applicationContext.getString(R.string
-                                        .participant_music_player_activity_started));
-                        startedIntent.putExtra(
-                                applicationContext.getString(R.string.session_playlist), playlist);
-
-                        LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
-                                .sendBroadcast(startedIntent);
-                    }
+                    // Broadcast an Intent to indicate that ParticipantMusicPlayerActivity has
+                    // started and has the playlist.
+                    Intent startedIntent =
+                            new Intent(applicationContext.getString(R.string
+                                    .participant_music_player_activity_started));
+                    startedIntent.putExtra(
+                            applicationContext.getString(R.string.session_playlist), playlist);
+                    LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
+                            .sendBroadcast(startedIntent);
                 } else if (action.equals(applicationContext.getString(R.string.pivot_choice_ready)))
                 {
-                    receivedPivotChoice = true;
-                    if (playlist != null) {
-                        Intent startedIntent =
-                                new Intent(applicationContext.getString(R.string
-                                        .participant_music_player_activity_started));
-                        startedIntent.putExtra(
-                                applicationContext.getString(R.string.session_playlist), playlist);
-                        startedIntent.putExtra(
-                                applicationContext.getString(R.string.is_pivot_on), true);
-                        LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
-                                .sendBroadcast(startedIntent);
-                    }
+                    broadcastIntentWithoutExtras(
+                            applicationContext.getString(R.string.pivot_set),
+                            ParticipantMusicPlayerActivity.this);
                 }
             }
 
