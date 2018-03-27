@@ -22,6 +22,7 @@ public class HostMusicPlayer extends SynchronicityMusicPlayer {
                         .getString(R.string.give_session_playlist));
         returnPlaylistIntent.putExtra(applicationContext
                 .getString(R.string.session_playlist), HostMusicPlayer.this.playlist);
+        returnPlaylistIntent.putExtra(applicationContext.getString(R.string.is_pivot_on), pivotOn);
         LocalBroadcastManager.getInstance(applicationContext)
                 .sendBroadcast(returnPlaylistIntent);
         hostMusicPlayerFilter = new IntentFilter();
