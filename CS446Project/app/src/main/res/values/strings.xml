@@ -204,6 +204,7 @@
     <!--Name of the extra for a boolean value sent in the Intent published by PlaylistManager-->
     <string name="extra_name_success">success</string>
     <string name="pivot_choice_ready">pivot_choice_ready</string>
+    <string name="pivot_set">pivot_set</string>
 
     <!-- Andrew's constants for ConnectionManager + sub-modules -->
     <string name="create_session_message">&domain_name;create_session_message</string>

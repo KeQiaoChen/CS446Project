@@ -33,7 +33,7 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
     boolean pivotOn;
 
     public SynchronicityMusicPlayer(final Context applicationContext, Playlist playlist,
-                                    boolean pivotOn) {
+                                    final boolean pivotOn) {
         this.applicationContext = applicationContext;
         this.playlist = playlist;
         this.pivotOn = pivotOn;
@@ -55,6 +55,7 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
         synchronicityMusicPlayerFilter.addAction(applicationContext.getString(R.string.mute));
         // Unmutes the playlist on the user's phone when the user presses the unmute button.
         synchronicityMusicPlayerFilter.addAction(applicationContext.getString(R.string.unmute));
+        synchronicityMusicPlayerFilter.addAction(applicationContext.getString(R.string.pivot_set));
         synchronicityMusicPlayerReceiver = new BroadcastReceiver() {
 
             @Override
@@ -70,6 +71,8 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
                     mute();
                 } else if (action.equals(applicationContext.getString(R.string.unmute))) {
                     unmute();
+                } else if (action.equals(applicationContext.getString(R.string.pivot_set))) {
+                    setPivotOn();
                 }
             }
 
@@ -77,6 +80,10 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
                 synchronicityMusicPlayerReceiver, synchronicityMusicPlayerFilter
         );
+    }
+
+    private void setPivotOn() {
+        this.pivotOn = true;
     }
 
     private void setMediaPlayerToCurrentSong() {
@@ -258,6 +265,10 @@ public abstract class SynchronicityMusicPlayer implements MusicPlayer {
             broadcastIntentWithoutExtras(applicationContext.getString(R.string.unmuted_update_GUI),
                     applicationContext);
         }
+    }
+
+    void setPivotOnOrOff(boolean pivotOn) {
+        this.pivotOn = pivotOn;
     }
 
     public void cleanUp() {
