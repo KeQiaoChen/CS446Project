@@ -24,7 +24,6 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
     private TextView waitMessage;
     private IntentFilter participantIntentFilter;
     private BroadcastReceiver participantMusicPlayerReceiver;
-    private boolean isPivotOn;
     private boolean receivedPivotChoice = false;
 
     @Override
@@ -117,17 +116,13 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
                                         .participant_music_player_activity_started));
                         startedIntent.putExtra(
                                 applicationContext.getString(R.string.session_playlist), playlist);
-                        startedIntent.putExtra(
-                                applicationContext.getString(R.string.is_pivot_on), isPivotOn
-                        );
+
                         LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
                                 .sendBroadcast(startedIntent);
                     }
                 } else if (action.equals(applicationContext.getString(R.string.pivot_choice_ready)))
                 {
                     receivedPivotChoice = true;
-                    isPivotOn = intent.getBooleanExtra(
-                            applicationContext.getString(R.string.is_pivot_on), true);
                     if (playlist != null) {
                         Intent startedIntent =
                                 new Intent(applicationContext.getString(R.string
@@ -135,8 +130,7 @@ public class ParticipantMusicPlayerActivity extends SynchronicityMusicPlayerActi
                         startedIntent.putExtra(
                                 applicationContext.getString(R.string.session_playlist), playlist);
                         startedIntent.putExtra(
-                                applicationContext.getString(R.string.is_pivot_on), isPivotOn
-                        );
+                                applicationContext.getString(R.string.is_pivot_on), true);
                         LocalBroadcastManager.getInstance(ParticipantMusicPlayerActivity.this)
                                 .sendBroadcast(startedIntent);
                     }
