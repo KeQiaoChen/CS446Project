@@ -16,7 +16,7 @@ import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.example.qian.cs446project.R;
+import com.uwaterloo.qian.cs446project.R;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -409,7 +409,7 @@ public class WifiNsdManager implements NsdManager<Map<String,String>> {
     /*
     A helper method which updates the sessionMap field (which tracks service instances + related
     devices). The method delegates its work out to a NsdState object, which will behave
-    differently based on state. For example, when the user has connected to a particular service
+    differently based on state. For uwaterloo, when the user has connected to a particular service
     instance, we want to connect to any new device that the user encounters which is already a part
     of the ad-hoc network that is identical to the service instance in addition to updating the
     sessionMap field. On the other hand, when the user is not yet connected to a service instance,

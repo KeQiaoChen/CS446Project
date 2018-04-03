@@ -4,20 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.NetworkInfo;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.example.qian.cs446project.Playlist;
-import com.example.qian.cs446project.R;
-import com.synchronicity.APBdev.util.ParcelableUtil;
+import com.uwaterloo.qian.cs446project.R;
 import com.synchronicity.APBdev.util.StampUtil;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +43,7 @@ Please note that even though these structures are in place, that they have not y
 with the IntentFilter objects which are required to pick up the Intent messages sent by the other
 components in the application. Nor have the BroadcastReceiver Objects been updated to reflect the
 functionality that they will call. Please see the NOTE TO THE PROFESSOR AND TA'S for the explanation
-as to why this is. Please refer to an older commit, or other components for an example of how we have
+as to why this is. Please refer to an older commit, or other components for an uwaterloo of how we have
 used BroadcastReceivers.
 
  */
@@ -131,7 +124,6 @@ public class WifiConnectionManager implements ConnectionManager {
                     WifiConnectionManager.this.localBroadcastManager.sendBroadcast(sendIntent);
 
                 }
-
 
             }
         };

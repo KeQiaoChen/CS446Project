@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.qian.cs446project.CreatePlaylistActivity">
+    tools:context="com.uwaterloo.qian.cs446project.CreatePlaylistActivity">
 
     <TextView
         android:id="@+id/textViewSelectSongs"

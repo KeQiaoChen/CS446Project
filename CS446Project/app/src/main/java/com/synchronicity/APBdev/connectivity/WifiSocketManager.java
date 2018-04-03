@@ -6,18 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
-import android.provider.SyncStateContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.example.qian.cs446project.Playlist;
-import com.example.qian.cs446project.R;
+import com.uwaterloo.qian.cs446project.Playlist;
+import com.uwaterloo.qian.cs446project.R;
 import com.synchronicity.APBdev.util.ParcelableUtil;
 import com.synchronicity.APBdev.util.StampUtil;
 import com.synchronicity.APBdev.util.TransferUtil;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -444,7 +442,7 @@ public class WifiSocketManager implements SocketManager {
 
                                     case Constants.SEND_DATA_SIGNAL:
 
-                                        String path = "/storage/emulated/0/data/data/com.example.qian.cs446project/";
+                                        String path = "/storage/emulated/0/data/data/com.uwaterloo.qian.cs446project/";
                                         String fileName = "04 - Big Ten.mp3";
 
                                         File file = new File(path+fileName);

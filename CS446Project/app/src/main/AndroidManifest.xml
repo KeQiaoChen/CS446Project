@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.qian.cs446project"> <!-- Min SDK Section -->
+    package="com.uwaterloo.qian.cs446project"> <!-- Min SDK Section -->
     <uses-sdk android:minSdkVersion="14" />
 
     <!-- Permissions Section -->
@@ -35,28 +35,28 @@
         android:screenOrientation="sensorPortrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.uwaterloo.qian.cs446project.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HostMusicPlayerActivity" />
-        <activity android:name=".ParticipantMusicPlayerActivity" />
-        <activity android:name=".ChooseSessionActivity" />
-        <activity android:name=".CreateSessionActivity" />
-        <activity android:name=".ManagePlaylistActivity" />
-        <activity android:name=".CreatePlaylistActivity" />
-        <activity android:name=".SynchronicityMusicPlayerActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.HostMusicPlayerActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.ParticipantMusicPlayerActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.ChooseSessionActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.CreateSessionActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.ManagePlaylistActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.CreatePlaylistActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.SynchronicityMusicPlayerActivity" />
 
         <service
-            android:name=".MainService"
+            android:name="com.uwaterloo.qian.cs446project.MainService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".EditPlaylistActivity" />
-        <activity android:name=".AddSongsActivity"></activity>
+        <activity android:name="com.uwaterloo.qian.cs446project.EditPlaylistActivity" />
+        <activity android:name="com.uwaterloo.qian.cs446project.AddSongsActivity"></activity>
     </application>
 
 </manifest>

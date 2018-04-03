@@ -7,7 +7,7 @@
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
     android:paddingTop="5dp"
-    tools:context="com.example.qian.cs446project.MainActivity">
+    tools:context="com.uwaterloo.qian.cs446project.MainActivity">
 
     <Button
         android:id="@+id/buttonCreateSession"

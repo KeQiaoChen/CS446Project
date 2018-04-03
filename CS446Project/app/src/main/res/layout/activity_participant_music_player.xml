@@ -8,7 +8,7 @@
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
     android:paddingTop="5dp"
-    tools:context="com.example.qian.cs446project.ParticipantMusicPlayerActivity">
+    tools:context="com.uwaterloo.qian.cs446project.ParticipantMusicPlayerActivity">
 
     <RelativeLayout
         android:id="@+id/relativeLayoutButtonPanel"
@@ -32,7 +32,8 @@
             android:layout_toEndOf="@id/imageViewMuteTogglingButton"
             android:layout_toRightOf="@id/imageViewMuteTogglingButton"
             android:layout_marginTop="10dp"
-            android:text="@string/leave_session" />
+            android:text="@string/leave_session"
+            android:onClick="onLeaveSession"/>
 
         <TextView
             android:id="@+id/textViewWaitForSongs"

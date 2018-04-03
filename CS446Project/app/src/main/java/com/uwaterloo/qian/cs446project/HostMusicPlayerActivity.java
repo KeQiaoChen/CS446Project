@@ -1,0 +1,160 @@
+package com.uwaterloo.qian.cs446project;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import static com.uwaterloo.qian.cs446project.CS446Utils.broadcastIntentWithoutExtras;
+
+/**
+ * Created by Qian on 2018-02-20.
+ */
+
+public class HostMusicPlayerActivity extends SynchronicityMusicPlayerActivity {
+
+    private ImageView playPauseButtons;
+    private ImageView stopButton;
+    private Playlist playlist;
+    private IntentFilter hostMusicPlayerActivityFilter;
+    private BroadcastReceiver hostMusicPlayerReceiver;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_host_music_player);
+        playPauseButtons = findViewById(R.id.imageViewPlayPauseButtons);
+        muteTogglingButton = findViewById(R.id.imageViewMuteTogglingButton);
+        playPauseButtons.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                playUpdateGUINotifyService(view);
+            }
+
+        });
+        stopButton = findViewById(R.id.imageViewStopButton);
+        playlist = getIntent().getParcelableExtra(applicationContext
+                .getString(R.string.session_playlist));
+        // HostMusicPlayerActivity represents screen 6 in the mockup. A Playlist is passed to
+        // HostMusicPlayerActivity to represent the session playlist.
+        setPlaylist(playlist);
+        //baseConnectionManager.initiateSession("Demo");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        hostMusicPlayerActivityFilter = new IntentFilter();
+        // When a user joins a session, the Play, Pause, and Stop buttons should be disabled for the
+        // host because the new participant needs time to receive and download at least the 1st
+        // song in the playlist.
+        hostMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string
+                .participant_joined));
+        // When all participants have finished downloading at least the 1st song in the playlist,
+        // the host's Play, Pause, and Stop buttons should be enabled.
+        hostMusicPlayerActivityFilter
+                .addAction(applicationContext.getString(R.string
+                .all_participants_ready));
+        hostMusicPlayerActivityFilter.addAction(applicationContext.getString(R.string
+                .user_chose_session));
+        // Change the icon for the play/pause button to the pause icon and make it so that if the
+        // host presses that button again, the session playlist pauses.
+        hostMusicPlayerActivityFilter.addAction(applicationContext.getString(R.string
+                .playing_update_GUI));
+        // Change the icon for the play/pause button to the play icon and make it so that if the
+        // host presses that button again, the session playlist resumes playing.
+        hostMusicPlayerActivityFilter.addAction(applicationContext.getString(R.string
+                .paused_update_GUI));
+        hostMusicPlayerReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                TextView waitMessage = findViewById(R.id.textViewWaitMessage);
+                if (action.equals(applicationContext.getString(R.string.participant_joined))) {
+                    playPauseButtons.setEnabled(false);
+                    stopButton.setEnabled(false);
+                    waitMessage.setText(applicationContext.getString(R.string.wait_message));
+                } else if (action
+                        .equals(applicationContext.getString(R.string.all_participants_ready))) {
+                    playPauseButtons.setEnabled(true);
+                    stopButton.setEnabled(true);
+                    waitMessage.setText(applicationContext.getString(R.string.ready_to_play));
+                } else if (action.equals(applicationContext.getString(R.string.playing_update_GUI)))
+                {
+                    // Broadcast an Intent to indicate that the host has pressed the play button.
+                    broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_play),
+                            HostMusicPlayerActivity.this);
+                    playPauseButtons.setImageResource(android.R.drawable.ic_media_pause);
+                    playPauseButtons.setOnClickListener(new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View view) {
+                            pauseUpdateGUINotifyService(view);
+                        }
+
+                    });
+                } else if (action.equals(applicationContext.getString(R.string.paused_update_GUI)))
+                {
+                    // Broadcast an Intent to indicate that the host has pressed the pause button.
+                    broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_pause),
+                            HostMusicPlayerActivity.this);
+                    enablePlay();
+                }
+            }
+
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                hostMusicPlayerReceiver, hostMusicPlayerActivityFilter
+        );
+        // Broadcast an Intent to indicate that HostMusicPlayerActivity has started.
+        Intent startedIntent =
+                new Intent(applicationContext.getString(R.string
+                .host_music_player_activity_started));
+        startedIntent.putExtra(applicationContext.getString(R.string.session_playlist), playlist);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(startedIntent);
+    }
+
+    private void enablePlay() {
+        playPauseButtons.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                playUpdateGUINotifyService(view);
+            }
+
+        });
+        playPauseButtons.setImageResource(android.R.drawable.ic_media_play);
+    }
+
+    @Override
+    void showPlaylistStopped() {
+        super.showPlaylistStopped();
+        // Broadcast an Intent to indicate the host has pressed the stop button.
+        broadcastIntentWithoutExtras(applicationContext.getString(R.string.send_stop),
+                this);
+        enablePlay();
+    }
+
+    @Override
+    void resetPlaylistGUI(boolean playlistPlayedUntilEnd) {
+        super.resetPlaylistGUI(playlistPlayedUntilEnd);
+        enablePlay();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(hostMusicPlayerReceiver);
+        hostMusicPlayerActivityFilter = null;
+        hostMusicPlayerReceiver = null;
+    }
+
+}
