@@ -73,7 +73,6 @@ public class ChooseSessionActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 if (action.equals(applicationContext.getString(R.string.find_session_return))) {
-                    sessionNames.clear();
                     sessionNames.add(intent.getStringExtra(applicationContext.getString(R.string
                             .available_sessions_key)));
                     sessionListAdapter.notifyDataSetChanged();
